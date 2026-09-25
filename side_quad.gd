@@ -1,6 +1,7 @@
 extends Node2D
-## Buttercup — SIDE-PROFILE walk (asset faces LEFT). 4 legs swing from the hip in a
-## diagonal gait (leg1+leg4 vs leg2+leg3), body bobs. Self-propels + flips to face travel.
+## Side-profile quadruped walk (shared by all Cattles; assets face LEFT). 4 legs swing
+## from the hip in a diagonal gait (Leg1+Leg4 vs Leg2+Leg3), body bobs. Self-propels
+## between left_bound/right_bound and flips to face travel. Draw order lives in the .tscn.
 
 @export var gait: float = 6.0      ## leg cycle speed (crank up = run)
 @export var swing: float = 0.26    ## leg swing amplitude (radians, ~15deg)

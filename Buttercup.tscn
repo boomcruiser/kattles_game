@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://buttercup.gd" id="0"]
+[ext_resource type="Script" path="res://side_quad.gd" id="0"]
 [ext_resource type="Texture2D" path="res://assets/buttercup_side/body.png" id="1"]
 [ext_resource type="Texture2D" path="res://assets/buttercup_side/leg1.png" id="2"]
 [ext_resource type="Texture2D" path="res://assets/buttercup_side/leg2.png" id="3"]
