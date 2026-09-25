@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://Buttercup.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://Daisybell.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://Fluffhorn.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://Moozie.tscn" id="5"]
 
 [node name="Main" type="Node2D" unique_id=1273210364]
 script = ExtResource("0")
@@ -22,6 +23,10 @@ color = Color(0.22, 0.2, 0.16, 1)
 
 [node name="Fluffhorn" parent="." instance=ExtResource("4")]
 position = Vector2(300, 280)
+scale = Vector2(0.32, 0.32)
+
+[node name="Moozie" parent="." instance=ExtResource("5")]
+position = Vector2(650, 300)
 scale = Vector2(0.32, 0.32)
 
 [node name="Rusty" parent="." unique_id=323936746 instance=ExtResource("1")]

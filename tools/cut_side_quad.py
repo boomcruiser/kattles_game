@@ -9,7 +9,8 @@ connected component. Writes assets/<name>_side/{body,leg1..leg4}.png, a magenta
 _cut.png check, a _sidewalk.png filmstrip, and prints the Godot pivots.
 
 Leg order convention: leg1 = far front, leg2 = near front, leg3 = far back,
-leg4 = near back. Draw order: leg1, leg3, Body, leg2, leg4.
+leg4 = near back. Default draw order: leg1, leg3, Body, leg2, leg4 (override
+per character with "order", e.g. when sleeves should cover both front legs).
 Diagonal gait: (leg2, leg3) in phase, (leg1, leg4) opposite.
 """
 import sys
@@ -67,9 +68,38 @@ CONFIGS = {
         "swing": 0.26,
         "bob": 8.0,
     },
+    "moozie": {
+        # front legs come out of sweater cuffs: draw both behind the body so the
+        # cuffs hide the joints
+        # cuffs hide the joints; front hips sit at the cut line (below the cuff) and
+        # "near" here just feathers the leg tops so nothing hard-edged peeks out
+        "order": ["leg1", "leg2", "leg3", "body", "leg4"],
+        "alpha": 120,  # generated art has a faint ground shadow (alpha ~70-100)
+        "legs": {
+            "leg1": {  # far front
+                "poly": [(100, 760), (300, 760), (300, 1000), (100, 1000)],
+                "top": 790, "cut": 834, "hip": (215, 834), "near": True,
+            },
+            "leg2": {  # near front (behind body, under cuff)
+                "poly": [(300, 760), (525, 760), (525, 1000), (300, 1000)],
+                "top": 826, "cut": 874, "hip": (368, 874), "near": True,
+            },
+            "leg3": {  # far back
+                "poly": [(620, 760), (772, 760), (772, 1000), (540, 1000)],
+                "top": 780, "cut": 808, "hip": (695, 805),
+            },
+            "leg4": {  # near back
+                "poly": [(772, 690), (1000, 690), (1000, 1000), (772, 1000)],
+                "top": 745, "cut": 800, "hip": (880, 780), "near": True,
+            },
+        },
+        "swing": 0.26,
+        "bob": 8.0,
+    },
 }
 
 
+DEFAULT_ORDER = ["leg1", "leg3", "body", "leg2", "leg4"]
 COL_MARGIN = 6  # px of slack either side of a leg's width in the overlap band
 
 
@@ -107,10 +137,11 @@ def rotate_about(img, angle_rad, pivot):
 
 def main(name):
     cfg = CONFIGS[name]
+    order = cfg.get("order", DEFAULT_ORDER)
     d = ROOT / "assets" / f"{name}_side"
     src = np.array(Image.open(d / "source.png").convert("RGBA"))
     h, w = src.shape[:2]
-    alpha = src[..., 3] > 60
+    alpha = src[..., 3] > cfg.get("alpha", 60)
     rows = np.arange(h)[:, None]
 
     body = alpha.copy()
@@ -137,7 +168,7 @@ def main(name):
 
     # magenta cut check: parts tinted and slightly exploded
     check = Image.new("RGBA", (w, h), (255, 0, 255, 255))
-    for pname in ["leg1", "leg3", "body", "leg2", "leg4"]:
+    for pname in order:
         check.alpha_composite(imgs[pname])
     check.save(d / "_cut.png")
 
@@ -149,7 +180,7 @@ def main(name):
         rot = {"leg1": swing * pr, "leg4": swing * pr, "leg2": swing * pl, "leg3": swing * pl}
         f = Image.new("RGBA", (w, h), (40, 44, 60, 255))
         by = -bob * abs(np.sin(t))
-        for pname in ["leg1", "leg3", "body", "leg2", "leg4"]:
+        for pname in order:
             if pname == "body":
                 layer = Image.new("RGBA", (w, h))
                 layer.alpha_composite(imgs["body"], (0, int(round(by))))
