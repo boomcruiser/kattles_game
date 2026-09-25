@@ -45,7 +45,32 @@ CONFIGS = {
         "swing": 0.26,
         "bob": 8.0,
     },
+    "fluffhorn": {
+        "legs": {
+            "leg1": {  # far front
+                "poly": [(150, 690), (385, 690), (372, 750), (355, 770), (340, 800), (340, 1000), (150, 1000)],
+                "top": 720, "cut": 760, "hip": (270, 745),
+            },
+            "leg2": {  # near front
+                "poly": [(385, 690), (600, 690), (595, 760), (520, 860), (520, 1000), (340, 1000), (340, 800), (355, 770), (372, 750)],
+                "top": 700, "cut": 765, "hip": (445, 740), "near": True,
+            },
+            "leg3": {  # far back
+                "poly": [(600, 735), (730, 735), (752, 770), (752, 1000), (520, 1000), (520, 860), (595, 760)],
+                "top": 740, "cut": 765, "hip": (665, 755),
+            },
+            "leg4": {  # near back
+                "poly": [(730, 690), (875, 690), (895, 760), (940, 800), (940, 1000), (752, 1000), (752, 770)],
+                "top": 725, "cut": 790, "hip": (840, 765), "near": True,
+            },
+        },
+        "swing": 0.26,
+        "bob": 8.0,
+    },
 }
+
+
+COL_MARGIN = 6  # px of slack either side of a leg's width in the overlap band
 
 
 def largest_cc(mask):
@@ -92,7 +117,14 @@ def main(name):
     parts = {}
     for leg, lc in cfg["legs"].items():
         region = poly_mask(src.shape, lc["poly"]) & alpha
-        parts[leg] = largest_cc(region & (rows >= lc["top"]))
+        # above the cut, keep only the leg's own width (at the cut rows) so belly
+        # pixels in the overlap band don't swing out below the body silhouette
+        cols = np.where(region[lc["cut"]:lc["cut"] + 20].any(axis=0))[0]
+        m = COL_MARGIN
+        in_cols = np.zeros(w, bool)
+        in_cols[max(cols.min() - m, 0):cols.max() + m + 1] = True
+        band = region & (rows >= lc["top"]) & ((rows >= lc["cut"]) | in_cols[None, :])
+        parts[leg] = largest_cc(band)
         body &= ~(region & (rows >= lc["cut"]))
     parts["body"] = largest_cc(body)
 
