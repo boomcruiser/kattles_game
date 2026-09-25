@@ -27,7 +27,7 @@ Smoke-test scenes without a GPU: `godot --headless --quit-after 120` (runs scrip
 
 ---
 
-## The animation pipeline (validated on Rusty + Buttercup)
+## The animation pipeline (current: Spotilda = reference rig)
 
 ### 1. Pick the facing the motion needs
 - **Blob / roughly-symmetric bipeds** (e.g. Rusty, most Kettles): the existing **front-3/4**
@@ -37,43 +37,38 @@ Smoke-test scenes without a GPU: `godot --headless --quit-after 120` (runs scrip
   not everyone needs a new asset.
 
 ### 2. (If needed) generate a side-profile asset
-Use gpt-image-1 `images/edits` with the original portrait as the input image. Prompt for a
-full-body **side profile facing LEFT**, same design/colors/markings/accessories, walking
-stance, all limbs visible, **transparent background**, centered, no text. Output is 1024×1024
-RGBA. gpt-image-1 keeps the character identity well. Convention: face **left**; flip in-engine
-for rightward travel. Store under `assets/<name>_side/source.png`.
+gpt-image-1 `images/edits`, 1024×1024 RGBA, `background=transparent`. Face **left** (flip
+in-engine). Store as `assets/<name>_side/source.png`. What actually works:
+- **Read the character first** (`../kattles_rust/prompts/<name>.txt`) — personality + pronouns.
+- Pass **two refs** via `image[]`: the original portrait (design, proportions, face) and an
+  existing painterly side view (e.g. `assets/daisybell_side/source.png`) for rendering style.
+- Ask for a **neutral stance**: all four legs straight down, separated, none hidden, hooves on
+  one line. Mid-stride art can't be animated convincingly.
+- Say explicitly: painterly semi-realistic, **NOT flat/cartoon, no thick outlines**; short sturdy
+  legs like the portrait; face/expression **from the portrait** (closed-mouth smile).
+- Masked edits don't work as patches — the API repaints the whole image. Regenerate instead.
+- Check alpha for a faint generated ground shadow; drop it with a per-character `alpha`.
 
-### 3. Cut into parts (Python, `../.venv-sprite/bin/python`)
-- Source PNGs already have a transparent background — mask with `alpha > 60`.
-- Profile the bottom rows to find limbs: count opaque horizontal runs per row. Distinct runs =
-  distinct legs; a merged run = occlusion (far legs behind near legs — happens in front views,
-  not clean side views).
-- Split limbs by x-ranges at the gaps. Cut each limb with its **top overlapping up into the
-  torso** (e.g. `LEG_TOP` a bit above the belly line) so the body can cover the joint.
-- Body = everything minus the **lower** (swinging) part of each limb. Keep the belly band so the
-  body silhouette covers the hip tops.
-- **Always keep-largest-connected-component per part** (`scipy.ndimage.label`) to drop stray
-  slivers from straight-line splits and isolated coat-spot fragments. This is mandatory — both
-  Buttercup's leg sliver and a floating body blob came from skipping it.
+### 3. Cut + rig: `tools/cut_side_quad.py <name>`
+One config block per character (polygon per leg, `top`/`cut` rows, `hip`, optional `knee`,
+`near`, `order`, `alpha`, `scene`). It does the cut, keep-largest-CC, near-leg feathering,
+leg-width trimming of the overlap band, knee split (upper extends 24px past the knee, fading, to
+fill the wedge a bent knee opens), a `_cut.png` magenta check, a `_sidewalk.png` filmstrip using
+the same math as `side_quad.gd`, and — if `scene` is set — writes `<Name>.tscn`.
+Profile the leg rows (opaque runs per row) to place polygons, hips (just under the belly line)
+and knees (front ~1/3 down the leg, hock ~halfway on back legs).
 
-### 4. Rig in Godot
-- Each part is a `Sprite2D` on the **same full-canvas texture**, so parts reassemble perfectly
-  when all node positions are `(0,0)`.
-- To pivot a part at a joint P (image coords, canvas center = C): set the node
-  `position = P - C` and `offset = -(P - C)`. Then the texture still lands in its original spot,
-  but rotation/scale pivot at P. (Used for hips and tails.)
-- **Draw order** = back-to-front child order. Body must be drawn **over** limb tops so the joint
-  is hidden. Far-side limbs behind body, near-side limbs in front. Example side-walk order:
-  `Leg2, Leg3, Body, Leg1, Leg4`.
-- Animate procedurally in `_process`: swing limbs by `rotation = swing * sin(_t + phase)`,
-  diagonal gait (outer front + outer back same phase, inner pair opposite), plus a body bob
-  `position.y = -bob * abs(sin(_t))`. Self-propel with `position.x += dir * speed * delta` and
-  flip facing with `scale.x` (asset faces left → `scale.x = base * -dir`).
+### 4. Walk: `side_quad.gd` (shared by all Cattles)
+4-beat cow walk (near back → near front → far back → far front). Each hoof is planted for
+`duty` of the cycle and sweeps back linearly; the cycle rate is derived from `move_speed` and
+leg length so planted hooves never slide. During swing a knee rig folds its `Lower` child back
+(`knee_bend`); rigid legs get a vertical `lift` instead. Pivots use the full-canvas trick:
+`position = P - C`, `offset = -(P - C)`; a knee child uses `position = K - P`, `offset = -(K - C)`.
 
-### 5. Verify before running
-Render the cut on a magenta bg (spot halos/slivers) and render a few animation phases as a
-filmstrip PNG using the **same math** as the GDScript, then `Read` it. Catches gaps/floaters
-without a GPU. Then `--headless --import` + `--quit-after` to catch script/scene errors.
+### 5. Verify
+Filmstrip first, then `--headless --import` + `--quit-after`, then **record the real game**:
+`godot --path . --write-movie <dir>/f.png --fixed-fps 30 --quit-after 45` and `Read` a contact
+sheet of frames. Judge motion from real frames, not the filmstrip alone.
 
 ---
 
@@ -95,23 +90,20 @@ without a GPU. Then `--headless --import` + `--quit-after` to catch script/scene
 
 ```
 kattles_game/
-  project.godot        # main_scene = Main.tscn, 960x540
-  Main.tscn / main.gd  # demo stage: Rusty (front biped walk) + Buttercup (side quad walk)
+  project.godot        # main_scene = Viewer.tscn (review mode), 960x540
+  Viewer.tscn / viewer.gd  # one puppet at a time, big; ←/→ to switch
+  Main.tscn / main.gd  # old crowded demo stage (all puppets + Rusty)
+  side_quad.gd         # shared Cattle walk (4-beat, no-slide, optional knees)
+  <Name>.tscn          # per-Cattle rig (Spotilda's is generated by the cut tool)
   Rusty.tscn / rusty.gd            # front-view biped puppet (feet translate-swing)
-  Buttercup.tscn / buttercup.gd    # side-view quadruped puppet (4 legs hip-swing)
-  assets/
-    rusty/             # body + foot_l + foot_r (front)
-    buttercup_side/    # source.png + body + leg1..leg4 (left-facing side profile)
+  tools/cut_side_quad.py           # cut + filmstrip + scene generation
+  assets/<name>_side/  # source.png + body + legN (+ legN_lo knee parts)
 ```
 
-## Adding a character (checklist)
-1. Decide facing (front portrait vs generated side profile).
-2. Generate side asset if needed → `assets/<name>_side/source.png`.
-3. Write a cut script → parts + keep-largest-CC cleanup.
-4. Note joint pivots (printed by the cut script, image coords).
-5. Build `<Name>.tscn` (Sprite2D per part, pivots via position/offset, correct draw order) and
-   `<name>.gd` (procedural walk/idle).
-6. `--headless --import`, smoke-test, then run and eyeball.
+## Status
+- Spotilda: done on the new pipeline (neutral painterly art + knees).
+- Buttercup, Daisybell, Fluffhorn, Moozie: old mid-stride rigid-leg rigs — redo on new pipeline.
+- Lieutenant Leather, Nocturna, Wanderella: not started. Kettles/Hybrids: Rusty only.
 
 ## Constraints (carry over from 2025)
 - Never expose API keys (`../kattles_rust/.env`).

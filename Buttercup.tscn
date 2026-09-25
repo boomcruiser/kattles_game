@@ -9,6 +9,8 @@
 
 [node name="Buttercup" type="Node2D"]
 script = ExtResource("0")
+; Buttercup rig: Leg1 = near front, Leg2 = far front (swapped vs the other Cattles)
+phases = Vector4(0.25, 0.75, 0.5, 0)
 
 [node name="Leg2" type="Sprite2D" parent="."]
 position = Vector2(-32, 253)

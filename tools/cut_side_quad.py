@@ -11,7 +11,7 @@ _cut.png check, a _sidewalk.png filmstrip, and prints the Godot pivots.
 Leg order convention: leg1 = far front, leg2 = near front, leg3 = far back,
 leg4 = near back. Default draw order: leg1, leg3, Body, leg2, leg4 (override
 per character with "order", e.g. when sleeves should cover both front legs).
-Diagonal gait: (leg2, leg3) in phase, (leg1, leg4) opposite.
+Walk: 4-beat lateral sequence (see side_quad.gd); the filmstrip mirrors its math.
 """
 import sys
 from pathlib import Path
@@ -96,9 +96,37 @@ CONFIGS = {
         "swing": 0.26,
         "bob": 8.0,
     },
+    "spotilda": {
+        # neutral-stance painterly art (matches the other Cattles) + knee joints
+        "alpha": 110,  # faint soft ground shadow under the hooves
+        "legs": {
+            "leg1": {  # far front
+                "poly": [(250, 700), (420, 700), (420, 760), (396, 1000), (250, 1000)],
+                "top": 745, "cut": 772, "hip": (372, 762), "knee": (366, 818),
+            },
+            "leg2": {  # near front
+                "poly": [(420, 690), (575, 690), (575, 1000), (396, 1000), (420, 760)],
+                "top": 715, "cut": 775, "hip": (480, 752), "knee": (478, 815), "near": True,
+            },
+            "leg3": {  # far back
+                "poly": [(575, 700), (747, 700), (747, 1000), (575, 1000)],
+                "top": 745, "cut": 768, "hip": (692, 758), "knee": (672, 850),
+            },
+            "leg4": {  # near back
+                "poly": [(747, 690), (880, 690), (880, 1000), (747, 1000)],
+                "top": 715, "cut": 782, "hip": (818, 750), "knee": (818, 852), "near": True,
+            },
+        },
+        "scene": {"move_speed": 70, "left_bound": 100, "right_bound": 880, "knee_bend": 0.6},
+    },
 }
 
 
+# must match side_quad.gd defaults
+WALK = {"swing": 0.22, "duty": 0.65, "lift": 14.0, "bob": 3.0, "knee_bend": 0.7}
+KNEE_OVER = 24   # upper leg extends this far below the knee (fills the wedge a bent
+                 # knee opens at the front), fading out over its last 16px
+KNEE_UNDER = 10  # lower leg extends this far above the knee (feathered)
 DEFAULT_ORDER = ["leg1", "leg3", "body", "leg2", "leg4"]
 COL_MARGIN = 6  # px of slack either side of a leg's width in the overlap band
 
@@ -117,9 +145,13 @@ def poly_mask(shape, poly):
     return np.array(img).astype(bool)
 
 
-def to_rgba(src, mask, fade=None):
+def to_rgba(src, mask, fade=None, fade_out=None):
     out = src.copy()
     a = np.where(mask, src[..., 3], 0).astype(np.float32)
+    if fade_out is not None:
+        # smoothstep ramp 1 -> 0 from fade_out[0] down to fade_out[1]
+        t = np.clip((np.arange(src.shape[0]) - fade_out[0]) / max(fade_out[1] - fade_out[0], 1), 0, 1)[:, None]
+        a *= 1 - t * t * (3 - 2 * t)
     if fade is not None:
         # smoothstep alpha ramp from `top` (0) to `cut` (1) so a near leg drawn over
         # the body blends into it instead of showing a hard cut edge when it rotates
@@ -159,38 +191,70 @@ def main(name):
         body &= ~(region & (rows >= lc["cut"]))
     parts["body"] = largest_cc(body)
 
+    # optional knee split: upper = hip..knee (+overlap), lower = knee..hoof; the lower
+    # part pivots at the knee and is drawn over the upper
+    for leg, lc in cfg["legs"].items():
+        if "knee" in lc:
+            ky = lc["knee"][1]
+            parts[leg + "_lo"] = parts[leg] & (rows >= ky - KNEE_UNDER)
+            parts[leg] = parts[leg] & (rows < ky + KNEE_OVER)
+
     imgs = {}
     for pname, m in parts.items():
         lc = cfg["legs"].get(pname, {})
-        fade = (lc["top"], lc["cut"]) if lc.get("near") else None
-        imgs[pname] = to_rgba(src, m, fade)
+        if pname.endswith("_lo"):
+            ky = cfg["legs"][pname[:-3]]["knee"][1]
+            fade = (ky - KNEE_UNDER, ky + 2)
+        else:
+            fade = (lc["top"], lc["cut"]) if lc.get("near") else None
+        fade_out = None
+        if "knee" in lc:
+            ky = lc["knee"][1]
+            fade_out = (ky + KNEE_OVER - 16, ky + KNEE_OVER)
+        imgs[pname] = to_rgba(src, m, fade, fade_out)
         imgs[pname].save(d / f"{pname}.png")
 
-    # magenta cut check: parts tinted and slightly exploded
+    # magenta cut check
     check = Image.new("RGBA", (w, h), (255, 0, 255, 255))
     for pname in order:
         check.alpha_composite(imgs[pname])
+        if pname + "_lo" in imgs:
+            check.alpha_composite(imgs[pname + "_lo"])
     check.save(d / "_cut.png")
 
-    # filmstrip using the same math as the GDScript
-    swing, bob = cfg["swing"], cfg["bob"]
+    # filmstrip using the same math as side_quad.gd
+    walk = {**WALK, **cfg.get("scene", {})}
+    swing, duty, bob, bend = walk["swing"], walk["duty"], walk["bob"], walk["knee_bend"]
+    phases = {"leg1": 0.75, "leg2": 0.25, "leg3": 0.5, "leg4": 0.0}
     frames = []
-    for t in np.linspace(0, 2 * np.pi, 6, endpoint=False):
-        pl, pr = np.sin(t), np.sin(t + np.pi)
-        rot = {"leg1": swing * pr, "leg4": swing * pr, "leg2": swing * pl, "leg3": swing * pl}
+    for p in np.linspace(0, 1, 8, endpoint=False):
         f = Image.new("RGBA", (w, h), (40, 44, 60, 255))
-        by = -bob * abs(np.sin(t))
+        by = bob * 0.5 * (1 - np.cos(2 * np.pi * 2 * p))
         for pname in order:
+            layer = Image.new("RGBA", (w, h))
             if pname == "body":
-                layer = Image.new("RGBA", (w, h))
                 layer.alpha_composite(imgs["body"], (0, int(round(by))))
             else:
-                layer = rotate_about(imgs[pname], rot[pname], cfg["legs"][pname]["hip"])
+                lc = cfg["legs"][pname]
+                has_knee = "knee" in lc
+                lift = 0.0 if has_knee else walk["lift"]
+                q = (p + phases[pname]) % 1
+                if q < duty:
+                    rot, dy, kr = swing - 2 * swing * (q / duty), 0.0, 0.0
+                else:
+                    s = (q - duty) / (1 - duty)
+                    rot = -swing + 2 * swing * (s * s * (3 - 2 * s))
+                    dy = -lift * np.sin(np.pi * s)
+                    kr = -bend * np.sin(np.pi * s)
+                leg_img = imgs[pname].copy()
+                if has_knee:
+                    leg_img.alpha_composite(rotate_about(imgs[pname + "_lo"], kr, lc["knee"]))
+                layer.alpha_composite(rotate_about(leg_img, rot, lc["hip"]), (0, int(round(dy))))
             f.alpha_composite(layer)
-        frames.append(f.crop((100, 450, 1024, 1000)).resize((462, 275)))
-    strip = Image.new("RGBA", (462 * 3, 275 * 2))
+        frames.append(f.crop((100, 450, 1024, 1000)).resize((347, 206)))
+    strip = Image.new("RGBA", (347 * 4, 206 * 2))
     for i, f in enumerate(frames):
-        strip.paste(f, ((i % 3) * 462, (i // 3) * 275))
+        strip.paste(f, ((i % 4) * 347, (i // 4) * 206))
     strip.save(d / "_sidewalk.png")
 
     cx, cy = w / 2, h / 2
@@ -198,6 +262,47 @@ def main(name):
     for leg, lc in cfg["legs"].items():
         px, py = lc["hip"][0] - cx, lc["hip"][1] - cy
         print(f"  {leg}: position=Vector2({px:g}, {py:g}) offset=Vector2({-px:g}, {-py:g})")
+
+    if "scene" in cfg:
+        write_scene(name, cfg, order, (cx, cy))
+
+
+def write_scene(name, cfg, order, center):
+    """Generate <Name>.tscn: Sprite2D per part on the shared canvas, hips/knees pivoted
+    via position/offset, knee lower legs as a "Lower" child of each leg."""
+    cx, cy = center
+    title = name.capitalize()
+    res, nodes = [], []
+
+    def tex(fname):
+        res.append(f'[ext_resource type="Texture2D" path="res://assets/{name}_side/{fname}" id="{len(res) + 1}"]')
+        return len(res)
+
+    body_id = tex("body.png")
+    for pname in order:
+        if pname == "body":
+            nodes.append(f'[node name="Body" type="Sprite2D" parent="."]\ntexture = ExtResource("{body_id}")')
+            continue
+        lc = cfg["legs"][pname]
+        node = "Leg" + pname[-1]
+        hx, hy = lc["hip"][0] - cx, lc["hip"][1] - cy
+        nodes.append(f'[node name="{node}" type="Sprite2D" parent="."]\n'
+                     f'position = Vector2({hx:g}, {hy:g})\noffset = Vector2({-hx:g}, {-hy:g})\n'
+                     f'texture = ExtResource("{tex(pname + ".png")}")')
+        if "knee" in lc:
+            kx, ky = lc["knee"]
+            nodes.append(f'[node name="Lower" type="Sprite2D" parent="{node}"]\n'
+                         f'position = Vector2({kx - lc["hip"][0]:g}, {ky - lc["hip"][1]:g})\n'
+                         f'offset = Vector2({-(kx - cx):g}, {-(ky - cy):g})\n'
+                         f'texture = ExtResource("{tex(pname + "_lo.png")}")')
+    props = "\n".join(f"{k} = {float(v)}" if isinstance(v, (int, float)) else f"{k} = {v}"
+                      for k, v in cfg["scene"].items())
+    out = [f"[gd_scene load_steps={len(res) + 2} format=3]", "",
+           '[ext_resource type="Script" path="res://side_quad.gd" id="0"]', *res, "",
+           f'[node name="{title}" type="Node2D"]\nscript = ExtResource("0")\n{props}', ""]
+    out += [n + "\n" for n in nodes]
+    (ROOT / f"{title}.tscn").write_text("\n".join(out))
+    print(f"wrote {title}.tscn")
 
 
 if __name__ == "__main__":

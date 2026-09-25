@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://Daisybell.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://Fluffhorn.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://Moozie.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://Spotilda.tscn" id="6"]
 
 [node name="Main" type="Node2D" unique_id=1273210364]
 script = ExtResource("0")
@@ -40,3 +41,7 @@ scale = Vector2(0.38, 0.38)
 [node name="Daisybell" parent="." instance=ExtResource("3")]
 position = Vector2(500, 330)
 scale = Vector2(0.34, 0.34)
+
+[node name="Spotilda" parent="." instance=ExtResource("6")]
+position = Vector2(250, 355)
+scale = Vector2(0.32, 0.32)
