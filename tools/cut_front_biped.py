@@ -36,6 +36,27 @@ CONFIGS = {
         },
         "scene": {"move_speed": 55, "left_bound": 120, "right_bound": 840},
     },
+    "nocturna": {
+        "title": "Nocturna",
+        # generated 3/4 view (portrait faces dead-on, which reads as sliding when
+        # walking sideways); whole body turned toward the LEFT, tail behind on the right
+        "source_local": True,
+        "alpha": 110,  # faint generated ground shadow
+        "parts": {
+            # neutral stance: legs straight and side by side, separate below ~y782
+            "leg_l": {"poly": [(330, 760), (496, 760), (496, 1010), (330, 1010)],
+                      "top": 768, "cut": 792, "pivot": (432, 780)},
+            "leg_r": {"poly": [(496, 760), (660, 760), (660, 1010), (496, 1010)],
+                      "top": 768, "cut": 792, "pivot": (568, 780)},
+            "arm_l": {"poly": [(255, 600), (357, 600), (357, 810), (255, 810)],
+                      "top": 612, "cut": 645, "pivot": (335, 625)},
+            # right hand covers the tail root: tail stays in the body, arm holds still
+            "arm_r": {"poly": [(634, 600), (740, 600), (740, 740), (728, 800), (634, 800)],
+                      "top": 612, "cut": 645, "pivot": (665, 625)},
+        },
+        "scene": {"move_speed": 45, "left_bound": 120, "right_bound": 840, "steps_per_sec": 1.5,
+                  "arm_r_amount": 0, "faces_left": True},
+    },
 }
 
 # must match front_biped.gd defaults
@@ -49,6 +70,16 @@ def largest_cc(mask):
         return mask
     sizes = ndimage.sum(mask, lab, range(1, n + 1))
     return lab == (int(np.argmax(sizes)) + 1)
+
+
+def keep_big(mask, min_px=400):
+    """Keep every connected piece of at least min_px (the body can legitimately be in
+    several pieces, e.g. a tail only attached through an arm that was cut out)."""
+    lab, n = ndimage.label(mask)
+    if n <= 1:
+        return mask
+    sizes = ndimage.sum(mask, lab, range(1, n + 1))
+    return np.isin(lab, [i + 1 for i, sz in enumerate(sizes) if sz >= min_px])
 
 
 def poly_mask(shape, poly):
@@ -72,8 +103,10 @@ def rotate_about(img, angle_rad, pivot):
     return img.rotate(-np.degrees(angle_rad), resample=Image.BICUBIC, center=pivot)
 
 
-def pose(p):
+def pose(p, scene=None):
     """Same math as front_biped.gd: returns per-part (dx, dy, rot) and body (dy, rot)."""
+    scene = scene or {}
+    al, ar = scene.get("arm_l_amount", 1.0), scene.get("arm_r_amount", 1.0)
     s = np.sin(2 * np.pi * p)
     lift_l = WALK["lift"] * max(0.0, s)
     lift_r = WALK["lift"] * max(0.0, -s)
@@ -82,8 +115,8 @@ def pose(p):
         "leg_r": (-WALK["stride"] * s, -lift_r, 0.0),
         # arms only swing inward (toward the torso, which covers them) - an outward
         # swing would open a gap where the forearm was cut out of the body
-        "arm_l": (0.0, 0.0, -WALK["arm_swing"] * max(0.0, -s)),
-        "arm_r": (0.0, 0.0, WALK["arm_swing"] * max(0.0, s)),
+        "arm_l": (0.0, 0.0, -WALK["arm_swing"] * al * max(0.0, -s)),
+        "arm_r": (0.0, 0.0, WALK["arm_swing"] * ar * max(0.0, s)),
         "body": (0.0, WALK["bob"] * 0.5 * (1 - np.cos(4 * np.pi * p)), WALK["tilt"] * s),
     }
 
@@ -92,18 +125,27 @@ def main(name):
     cfg = CONFIGS[name]
     d = ROOT / "assets" / f"{name}_front"
     d.mkdir(parents=True, exist_ok=True)
-    src_img = Image.open(PORTRAITS / cfg["source"]).convert("RGBA")
-    src_img.save(d / "source.png")
+    if cfg.get("source_local"):
+        # generated view already saved as assets/<name>_front/source.png
+        src_img = Image.open(d / "source.png").convert("RGBA")
+    else:
+        src_img = Image.open(PORTRAITS / cfg["source"]).convert("RGBA")
+        src_img.save(d / "source.png")
     src = np.array(src_img)
     h, w = src.shape[:2]
     alpha = src[..., 3] > cfg.get("alpha", 60)
     rows = np.arange(h)[:, None]
 
+    px = src.astype(int)
+    bright = ((px[..., 0] + px[..., 1]) / 2 > 125) & (px[..., 0] - px[..., 2] > 35)
     body = alpha.copy()
     masks = {}
     body_fade = np.ones((h, w), np.float32)
     for pname, pc in cfg["parts"].items():
         region = poly_mask(src.shape, pc["poly"]) & alpha
+        if "exclude_bright_above" in pc:
+            # light cloth (poncho fringe) in front of the limb stays with the body
+            region &= ~(bright & (rows < pc["exclude_bright_above"]))
         masks[pname] = largest_cc(region & (rows >= pc["top"]))
         body &= ~(region & (rows >= pc["cut"]))
         if pname.startswith("leg"):
@@ -112,7 +154,7 @@ def main(name):
             t = np.clip((np.arange(h) - pc["top"]) / max(pc["cut"] - pc["top"], 1), 0, 1)[:, None]
             ramp = 1 - t * t * (3 - 2 * t)
             body_fade = np.where(region, np.minimum(body_fade, ramp), body_fade)
-    masks["body"] = largest_cc(body)
+    masks["body"] = keep_big(body)
 
     imgs = {}
     for pname, m in masks.items():
@@ -133,14 +175,14 @@ def main(name):
     frames = []
     for p in np.linspace(0, 1, 8, endpoint=False):
         f = Image.new("RGBA", (w, h), (40, 44, 60, 255))
-        ps = pose(p)
+        ps = pose(p, cfg["scene"])
         for pname in ORDER:
             dx, dy, rot = ps[pname]
             pivot = cfg["parts"][pname]["pivot"] if pname != "body" else (w / 2, h * 0.85)
             layer = Image.new("RGBA", (w, h))
             layer.alpha_composite(rotate_about(imgs[pname], rot, pivot), (int(round(dx)), int(round(dy))))
             f.alpha_composite(layer)
-        frames.append(f.crop((100, 0, 500, 600)).resize((200, 300)))
+        frames.append(f.crop((w // 6, 0, w * 5 // 6, h)).resize((200, 300)))
     strip = Image.new("RGBA", (200 * 8, 300))
     for i, f in enumerate(frames):
         strip.paste(f, (i * 200, 0))
@@ -164,7 +206,8 @@ def write_scene(name, cfg, center, body_pivot):
         nodes.append(f'[node name="{node}" type="Sprite2D" parent="."]\n'
                      f'position = Vector2({ox:g}, {oy:g})\noffset = Vector2({-ox:g}, {-oy:g})\n'
                      f'texture = ExtResource("{len(res)}")\n')
-    props = "\n".join(f"{k} = {float(v)}" for k, v in cfg["scene"].items())
+    props = "\n".join(f"{k} = {str(v).lower()}" if isinstance(v, bool) else f"{k} = {float(v)}"
+                      for k, v in cfg["scene"].items())
     out = [f"[gd_scene load_steps={len(res) + 2} format=3]", "",
            '[ext_resource type="Script" path="res://front_biped.gd" id="0"]', *res, "",
            f'[node name="{cfg["title"]}" type="Node2D"]\nscript = ExtResource("0")\n{props}\n', *nodes]

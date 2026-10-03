@@ -9,8 +9,11 @@ extends Node2D
 @export var lift: float = 14.0          ## foot lift (px, unscaled)
 @export var stride: float = 6.0         ## sideways foot shift (px, unscaled)
 @export var arm_swing: float = 0.12     ## arm sway (radians)
+@export var arm_l_amount: float = 1.0   ## per-arm swing multiplier (0 = arm holds still,
+@export var arm_r_amount: float = 1.0   ## e.g. a hand that covers the tail root)
 @export var bob: float = 4.0            ## body dip per step (px, unscaled)
 @export var tilt: float = 0.025         ## body rock toward the planted leg (radians)
+@export var faces_left: bool = false    ## art is turned toward the left (else right)
 @export var move_speed: float = 55.0
 @export var left_bound: float = 120.0
 @export var right_bound: float = 840.0
@@ -37,15 +40,15 @@ func _process(delta: float) -> void:
 	_leg_r.position = _base[_leg_r] + Vector2(-stride * s, -lift * maxf(0.0, -s))
 	# arms only swing inward (over the torso); an outward swing would open a gap
 	# where the forearm was cut out of the body
-	_arm_l.rotation = -arm_swing * maxf(0.0, -s)
-	_arm_r.rotation = arm_swing * maxf(0.0, s)
+	_arm_l.rotation = -arm_swing * arm_l_amount * maxf(0.0, -s)
+	_arm_r.rotation = arm_swing * arm_r_amount * maxf(0.0, s)
 	_body.position = _base[_body] + Vector2(0.0, bob * 0.5 * (1.0 - cos(2.0 * TAU * _p)))
 	_body.rotation = tilt * s
 
-	# travel; front-facing art is mirrored to face the direction of travel
+	# travel; art is mirrored so it faces the direction of travel
 	position.x += _dir * move_speed * delta
 	if position.x < left_bound:
 		_dir = 1.0
 	elif position.x > right_bound:
 		_dir = -1.0
-	scale.x = _bs * _dir
+	scale.x = _bs * (-_dir if faces_left else _dir)
