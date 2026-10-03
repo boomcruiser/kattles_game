@@ -5,3 +5,6 @@
 # Debug/verification renders (filmstrips, magenta cut checks)
 assets/**/_*.png
 assets/**/_*.png.import
+
+# Python
+__pycache__/
