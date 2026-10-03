@@ -119,6 +119,29 @@ CONFIGS = {
         },
         "scene": {"move_speed": 70, "left_bound": 100, "right_bound": 880, "knee_bend": 0.6},
     },
+    "wanderella": {
+        # neutral-stance painterly art (portrait + Spotilda side view as refs) + knees
+        "alpha": 110,
+        "legs": {
+            "leg1": {  # far front
+                "poly": [(260, 700), (414, 700), (414, 1000), (260, 1000)],
+                "top": 740, "cut": 762, "hip": (362, 752), "knee": (356, 822),
+            },
+            "leg2": {  # near front
+                "poly": [(414, 690), (580, 690), (580, 1000), (414, 1000)],
+                "top": 712, "cut": 768, "hip": (470, 745), "knee": (466, 824), "near": True,
+            },
+            "leg3": {  # far back
+                "poly": [(580, 700), (752, 700), (752, 1000), (580, 1000)],
+                "top": 730, "cut": 752, "hip": (700, 742), "knee": (680, 842),
+            },
+            "leg4": {  # near back
+                "poly": [(752, 690), (900, 690), (900, 1000), (752, 1000)],
+                "top": 705, "cut": 772, "hip": (825, 742), "knee": (824, 846), "near": True,
+            },
+        },
+        "scene": {"move_speed": 65, "left_bound": 100, "right_bound": 880, "knee_bend": 0.6},
+    },
 }
 
 
