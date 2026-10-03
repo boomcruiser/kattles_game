@@ -3,6 +3,7 @@ extends Node2D
 ## forth. Left/Right (or A/D) switch characters.
 
 const CHARACTERS := [
+	"res://LieutenantLeather.tscn",
 	"res://Spotilda.tscn",
 	"res://Buttercup.tscn",
 	"res://Daisybell.tscn",
@@ -10,7 +11,7 @@ const CHARACTERS := [
 	"res://Moozie.tscn",
 ]
 const GROUND_Y := 470.0
-const SCALE := 0.5
+const TARGET_HEIGHT := 400.0   ## on-screen height each puppet is scaled to
 
 var _i: int = 0
 var _current: Node2D
@@ -32,20 +33,23 @@ func _show(i: int) -> void:
 	_current = load(CHARACTERS[_i]).instantiate()
 	# bounds must be set before the puppet's _ready (it reads them each frame, but
 	# its step rate is computed from move_speed/scale at _ready)
-	_current.scale = Vector2(SCALE, SCALE)
-	_current.position = Vector2(480.0, GROUND_Y - _hoof_below_center(_current) * SCALE)
+	var ext := _extent(_current)
+	var k := TARGET_HEIGHT / (ext.y - ext.x)
+	_current.scale = Vector2(k, k)
+	_current.position = Vector2(480.0, GROUND_Y - ext.y * k)
 	_current.set("left_bound", 260.0)
 	_current.set("right_bound", 700.0)
 	add_child(_current)
 	_label.text = "%s   (%d/%d)   ← → to switch" % [_current.name, _i + 1, CHARACTERS.size()]
 
-## Canvas px from texture center down to the lowest hoof (from the leg textures).
-func _hoof_below_center(puppet: Node2D) -> float:
-	var lowest := 0.0
-	for leg in ["Leg1", "Leg2", "Leg3", "Leg4"]:
-		var part: Sprite2D = puppet.get_node(leg).get_node_or_null("Lower")
-		if part == null:
-			part = puppet.get_node(leg)
-		var img := part.texture.get_image()
-		lowest = maxf(lowest, img.get_used_rect().end.y - img.get_height() / 2.0)
-	return lowest
+## Vertical extent of the puppet in canvas px relative to texture center:
+## x = top of the highest part, y = bottom of the lowest (feet).
+func _extent(puppet: Node2D) -> Vector2:
+	var top := INF
+	var bottom := -INF
+	for part in puppet.find_children("*", "Sprite2D", true, false):
+		var img: Image = (part as Sprite2D).texture.get_image()
+		var r := img.get_used_rect()
+		top = minf(top, r.position.y - img.get_height() / 2.0)
+		bottom = maxf(bottom, r.end.y - img.get_height() / 2.0)
+	return Vector2(top, bottom)
