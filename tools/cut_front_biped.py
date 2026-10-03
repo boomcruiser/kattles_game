@@ -57,6 +57,21 @@ CONFIGS = {
         "scene": {"move_speed": 45, "left_bound": 120, "right_bound": 840, "steps_per_sec": 1.5,
                   "arm_r_amount": 0, "faces_left": True},
     },
+    "boilbert": {
+        "title": "Boilbert",
+        "source": "Kettles/boilbert.png",
+        # robot legs (ball joint + foot) hang from the bottom plate; no swinging arms
+        # (raised hose arm + side pipes would look wrong swinging)
+        "parts": {
+            "leg_l": {"poly": [(100, 446), (258, 446), (258, 600), (100, 600)],
+                      "top": 446, "cut": 470, "pivot": (250, 466)},
+            "leg_r": {"poly": [(372, 446), (560, 446), (560, 600), (372, 600)],
+                      "top": 446, "cut": 470, "pivot": (392, 466)},
+        },
+        # heavy bouncer: slower, weightier steps, more body rock
+        "scene": {"move_speed": 45, "left_bound": 120, "right_bound": 840, "steps_per_sec": 1.4,
+                  "lift": 12, "bob": 6, "tilt": 0.04, "faces_left": True},
+    },
 }
 
 # must match front_biped.gd defaults
@@ -107,22 +122,28 @@ def pose(p, scene=None):
     """Same math as front_biped.gd: returns per-part (dx, dy, rot) and body (dy, rot)."""
     scene = scene or {}
     al, ar = scene.get("arm_l_amount", 1.0), scene.get("arm_r_amount", 1.0)
+    walk = {**WALK, **{k: v for k, v in scene.items() if k in WALK}}
     s = np.sin(2 * np.pi * p)
-    lift_l = WALK["lift"] * max(0.0, s)
-    lift_r = WALK["lift"] * max(0.0, -s)
+    lift_l = walk["lift"] * max(0.0, s)
+    lift_r = walk["lift"] * max(0.0, -s)
     return {
-        "leg_l": (WALK["stride"] * s, -lift_l, 0.0),
-        "leg_r": (-WALK["stride"] * s, -lift_r, 0.0),
+        "leg_l": (walk["stride"] * s, -lift_l, 0.0),
+        "leg_r": (-walk["stride"] * s, -lift_r, 0.0),
         # arms only swing inward (toward the torso, which covers them) - an outward
         # swing would open a gap where the forearm was cut out of the body
-        "arm_l": (0.0, 0.0, -WALK["arm_swing"] * al * max(0.0, -s)),
-        "arm_r": (0.0, 0.0, WALK["arm_swing"] * ar * max(0.0, s)),
-        "body": (0.0, WALK["bob"] * 0.5 * (1 - np.cos(4 * np.pi * p)), WALK["tilt"] * s),
+        "arm_l": (0.0, 0.0, -walk["arm_swing"] * al * max(0.0, -s)),
+        "arm_r": (0.0, 0.0, walk["arm_swing"] * ar * max(0.0, s)),
+        "body": (0.0, walk["bob"] * 0.5 * (1 - np.cos(4 * np.pi * p)), walk["tilt"] * s),
     }
+
+
+def order_for(cfg):
+    return [p for p in ORDER if p == "body" or p in cfg["parts"]]
 
 
 def main(name):
     cfg = CONFIGS[name]
+    order = order_for(cfg)
     d = ROOT / "assets" / f"{name}_front"
     d.mkdir(parents=True, exist_ok=True)
     if cfg.get("source_local"):
@@ -168,7 +189,7 @@ def main(name):
         imgs[pname].save(d / f"{pname}.png")
 
     check = Image.new("RGBA", (w, h), (255, 0, 255, 255))
-    for pname in ORDER:
+    for pname in order:
         check.alpha_composite(imgs[pname])
     check.save(d / "_cut.png")
 
@@ -176,7 +197,7 @@ def main(name):
     for p in np.linspace(0, 1, 8, endpoint=False):
         f = Image.new("RGBA", (w, h), (40, 44, 60, 255))
         ps = pose(p, cfg["scene"])
-        for pname in ORDER:
+        for pname in order:
             dx, dy, rot = ps[pname]
             pivot = cfg["parts"][pname]["pivot"] if pname != "body" else (w / 2, h * 0.85)
             layer = Image.new("RGBA", (w, h))
@@ -193,8 +214,9 @@ def main(name):
 
 def write_scene(name, cfg, center, body_pivot):
     cx, cy = center
+    order = order_for(cfg)
     res, nodes = [], []
-    for pname in ORDER:
+    for pname in order:
         res.append(f'[ext_resource type="Texture2D" path="res://assets/{name}_front/{pname}.png" id="{len(res) + 1}"]')
         if pname == "body":
             px, py = body_pivot

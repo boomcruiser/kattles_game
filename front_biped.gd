@@ -24,8 +24,8 @@ var _bs: float = 1.0
 @onready var _body: Sprite2D = $Body
 @onready var _leg_l: Sprite2D = $LegL
 @onready var _leg_r: Sprite2D = $LegR
-@onready var _arm_l: Sprite2D = $ArmL
-@onready var _arm_r: Sprite2D = $ArmR
+@onready var _arm_l: Sprite2D = get_node_or_null("ArmL")  ## arms are optional
+@onready var _arm_r: Sprite2D = get_node_or_null("ArmR")
 @onready var _base := {
 	_body: _body.position, _leg_l: _leg_l.position, _leg_r: _leg_r.position,
 }
@@ -40,8 +40,10 @@ func _process(delta: float) -> void:
 	_leg_r.position = _base[_leg_r] + Vector2(-stride * s, -lift * maxf(0.0, -s))
 	# arms only swing inward (over the torso); an outward swing would open a gap
 	# where the forearm was cut out of the body
-	_arm_l.rotation = -arm_swing * arm_l_amount * maxf(0.0, -s)
-	_arm_r.rotation = arm_swing * arm_r_amount * maxf(0.0, s)
+	if _arm_l:
+		_arm_l.rotation = -arm_swing * arm_l_amount * maxf(0.0, -s)
+	if _arm_r:
+		_arm_r.rotation = arm_swing * arm_r_amount * maxf(0.0, s)
 	_body.position = _base[_body] + Vector2(0.0, bob * 0.5 * (1.0 - cos(2.0 * TAU * _p)))
 	_body.rotation = tilt * s
 
