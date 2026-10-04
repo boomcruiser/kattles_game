@@ -132,6 +132,21 @@ CONFIGS = {
         "scene": {"move_speed": 45, "left_bound": 120, "right_bound": 840, "steps_per_sec": 2.0,
                   "lift": 7, "stride": 3, "bob": 2, "tilt": 0.015, "faces_left": True},
     },
+    "steamy": {
+        "title": "Steamy",
+        "source": "Kettles/steamy.png",
+        # portrait already slightly turned (spout leads: faces left); steam swirl +
+        # music-note ring are separate pieces kept by keep_big
+        "parts": {
+            "leg_l": {"poly": [(150, 516), (245, 516), (245, 566), (150, 566)],
+                      "top": 518, "cut": 534, "pivot": (205, 526)},
+            "leg_r": {"poly": [(358, 516), (455, 516), (455, 566), (358, 566)],
+                      "top": 518, "cut": 534, "pivot": (400, 526)},
+        },
+        # glamorous singing star: smooth swaying strut
+        "scene": {"move_speed": 50, "left_bound": 120, "right_bound": 840, "steps_per_sec": 1.6,
+                  "lift": 9, "stride": 5, "bob": 4, "tilt": 0.07, "faces_left": True},
+    },
 }
 
 # must match front_biped.gd defaults
