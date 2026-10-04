@@ -8,6 +8,18 @@ extends Node2D
 @export var lift: float = 18.0      ## foot lift height (px)
 @export var bob: float = 10.0       ## body vertical bob (px)
 @export var tilt: float = 0.03      ## body sway (radians)
+## Walk back and forth on its own (the viewer turns this on; the old Main stage moves
+## Rusty from main.gd instead, so it stays off there). Art faces right.
+@export var self_propel: bool = false
+@export var move_speed: float = 60.0
+@export var left_bound: float = 120.0
+@export var right_bound: float = 840.0
+
+var _dir: float = 1.0
+var _bs: float = 1.0
+
+func _ready() -> void:
+	_bs = absf(scale.x)
 
 var _t: float = 0.0
 @onready var _body: Sprite2D = $Body
@@ -25,6 +37,13 @@ func _process(delta: float) -> void:
 		# body bobs twice per stride, sways side to side
 		_body.position.y = -bob * absf(sin(_t))
 		_body.rotation = tilt * sin(_t)
+		if self_propel:
+			position.x += _dir * move_speed * delta
+			if position.x < left_bound:
+				_dir = 1.0
+			elif position.x > right_bound:
+				_dir = -1.0
+			scale.x = _bs * _dir
 	else:
 		# idle: gentle breathing
 		_t += delta * 2.0

@@ -3,6 +3,7 @@ extends Node2D
 ## forth. Left/Right (or A/D) switch characters.
 
 const CHARACTERS := [
+	"res://Rusty.tscn",
 	"res://Whispy.tscn",
 	"res://Puffalo.tscn",
 	"res://Moosteam.tscn",
@@ -54,6 +55,7 @@ func _show(i: int) -> void:
 	_current.position = Vector2(480.0, GROUND_Y - ext.y * k)
 	_current.set("left_bound", 260.0)
 	_current.set("right_bound", 700.0)
+	_current.set("self_propel", true)  # Rusty only; ignored by the other rigs
 	add_child(_current)
 	_label.text = "%s   (%d/%d)   ← → to switch" % [_current.name, _i + 1, CHARACTERS.size()]
 
