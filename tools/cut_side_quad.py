@@ -195,6 +195,32 @@ CONFIGS = {
         "scene": {"move_speed": 70, "left_bound": 100, "right_bound": 880, "swing": 0,
                   "step_rate": 2.2, "lift": 22, "bob": 6},
     },
+    "snortle": {
+        # Hybrid: ORIGINAL kattles_web cutout (clean except a fake checkerboard in the
+        # handle loop, cleared by pixel edit), mirrored so the spout leads. Front-facing
+        # art, so stomp in place. Legs touch side by side: split at the color borders.
+        "legs": {
+            "leg1": {  # far front (dark)
+                "poly": [(240, 780), (359, 780), (359, 1000), (240, 1000)],
+                "top": 795, "cut": 812, "hip": (305, 805),
+            },
+            "leg2": {  # near front (light)
+                "poly": [(359, 780), (499, 780), (499, 1000), (359, 1000)],
+                "top": 795, "cut": 812, "hip": (428, 805), "near": True,
+            },
+            "leg3": {  # far back (dark)
+                "poly": [(499, 780), (623, 780), (623, 1000), (499, 1000)],
+                "top": 795, "cut": 812, "hip": (562, 805),
+            },
+            "leg4": {  # near back (light)
+                "poly": [(623, 780), (780, 780), (780, 1000), (623, 1000)],
+                "top": 795, "cut": 812, "hip": (690, 805), "near": True,
+            },
+        },
+        # gruff-but-lovable joker: steady stompy waddle
+        "scene": {"move_speed": 55, "left_bound": 100, "right_bound": 880, "swing": 0,
+                  "step_rate": 1.8, "lift": 18, "bob": 4},
+    },
 }
 
 

@@ -3,6 +3,7 @@ extends Node2D
 ## forth. Left/Right (or A/D) switch characters.
 
 const CHARACTERS := [
+	"res://Snortle.tscn",
 	"res://Clatterhoof.tscn",
 	"res://Bubblehorn.tscn",
 	"res://InspectorVapour.tscn",
