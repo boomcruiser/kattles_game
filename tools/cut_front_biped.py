@@ -86,6 +86,21 @@ CONFIGS = {
         "scene": {"move_speed": 35, "left_bound": 120, "right_bound": 840, "steps_per_sec": 1.2,
                   "lift": 8, "stride": 4, "bob": 3, "tilt": 0.06, "faces_left": True},
     },
+    "bubbly": {
+        "title": "Bubbly",
+        "source": "Kettles/bubbly.png",
+        # tiny feet under the glass base; spout leads (faces left); heart + sparkles
+        # are separate pieces kept by keep_big
+        "parts": {
+            "leg_l": {"poly": [(160, 500), (242, 500), (242, 560), (160, 560)],
+                      "top": 500, "cut": 527, "pivot": (205, 515)},
+            "leg_r": {"poly": [(336, 500), (418, 500), (418, 560), (336, 560)],
+                      "top": 500, "cut": 527, "pivot": (375, 515)},
+        },
+        # cheerful + energetic: quick hoppy steps
+        "scene": {"move_speed": 70, "left_bound": 120, "right_bound": 840, "steps_per_sec": 2.4,
+                  "lift": 12, "stride": 4, "bob": 7, "tilt": 0.03, "faces_left": True},
+    },
 }
 
 # must match front_biped.gd defaults
