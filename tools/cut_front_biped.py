@@ -72,6 +72,20 @@ CONFIGS = {
         "scene": {"move_speed": 45, "left_bound": 120, "right_bound": 840, "steps_per_sec": 1.4,
                   "lift": 12, "bob": 6, "tilt": 0.04, "faces_left": True},
     },
+    "brewster": {
+        "title": "Brewster",
+        "source": "Kettles/brewster.png",
+        # stubby feet under the base; spout + handle stay fixed (spout leads: faces left)
+        "parts": {
+            "leg_l": {"poly": [(125, 470), (244, 470), (244, 545), (125, 545)],
+                      "top": 470, "cut": 490, "pivot": (205, 480)},
+            "leg_r": {"poly": [(352, 470), (470, 470), (470, 545), (352, 545)],
+                      "top": 470, "cut": 490, "pivot": (395, 480)},
+        },
+        # chill and laid-back: slow lazy waddle, low lift, extra side-to-side sway
+        "scene": {"move_speed": 35, "left_bound": 120, "right_bound": 840, "steps_per_sec": 1.2,
+                  "lift": 8, "stride": 4, "bob": 3, "tilt": 0.06, "faces_left": True},
+    },
 }
 
 # must match front_biped.gd defaults
