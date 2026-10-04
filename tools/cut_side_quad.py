@@ -274,7 +274,8 @@ CONFIGS = {
     },
     "whispy": {
         # Hybrid: ORIGINAL kattles_web cutout (already 3/4 facing left); baked checker in
-        # the handle loop + spout gap cleared by seeded flood-fill.
+        # the handle loop + spout gap cleared by seeded flood-fill. Tail tip is cropped in
+        # the original art: square end trimmed into a rounded tip + outline (pixel edit).
         "legs": {
             "leg1": {  # far front (dark)
                 "poly": [(170, 840), (330, 840), (330, 1000), (170, 1000)],
