@@ -20,6 +20,10 @@ extends Node2D
 ## cycle phase offset per leg (Leg1..Leg4). Default = lateral walk:
 ## near back -> near front -> far back -> far front.
 @export var phases: Vector4 = Vector4(0.75, 0.25, 0.5, 0.0)
+## >0: fixed gait cycles/sec instead of the no-slide derivation. Use with swing = 0 for
+## a front-ish 3/4 rig that stomps in place (hooves lift, no fore-aft sweep, so the
+## gait has no direction to read "backwards").
+@export var step_rate: float = 0.0
 
 var _p: float = 0.0                ## cycle phase, 0..1
 var _dir: float = -1.0             ## start walking left (asset's natural facing)
@@ -41,7 +45,10 @@ func _ready() -> void:
 	var leg_len := total_len / _legs.size()
 	# stance sweeps the hoof 2*swing*leg_len (local px) in duty/_freq seconds;
 	# match that to the ground moving past at move_speed (screen px)
-	_freq = move_speed * duty / (2.0 * swing * leg_len * _bs)
+	if step_rate > 0.0:
+		_freq = step_rate
+	else:
+		_freq = move_speed * duty / (2.0 * swing * leg_len * _bs)
 
 ## Pivot-to-hoof distance in texture px (hoof = lowest opaque row of the leg, or of
 ## its Lower part on a knee rig).

@@ -168,6 +168,33 @@ CONFIGS = {
         # cheerful, curious, easily amazed: perky trot
         "scene": {"move_speed": 60, "left_bound": 100, "right_bound": 880, "knee_bend": 0.6},
     },
+    "clatterhoof": {
+        # Hybrid: faithful regen of the original portrait (style preserved), mirrored.
+        # Front-ish 3/4 art (every re-angled regen / pixel edit looked off), so he
+        # stomps in place: swing 0 (no fore-aft sweep), fixed step_rate, no knees.
+        "alpha": 110,
+        "legs": {
+            "leg1": {  # far front
+                "poly": [(290, 800), (455, 800), (455, 1000), (290, 1000)],
+                "top": 810, "cut": 832, "hip": (372, 822),
+            },
+            "leg2": {  # near front
+                "poly": [(455, 800), (604, 800), (604, 1000), (455, 1000)],
+                "top": 815, "cut": 840, "hip": (535, 830), "near": True,
+            },
+            "leg3": {  # far back (peeks out behind the near front leg)
+                "poly": [(604, 800), (705, 800), (705, 1000), (604, 1000)],
+                "top": 815, "cut": 838, "hip": (650, 828),
+            },
+            "leg4": {  # near back
+                "poly": [(705, 790), (870, 790), (870, 1000), (705, 1000)],
+                "top": 805, "cut": 828, "hip": (785, 818), "near": True,
+            },
+        },
+        # big, clumsy, energetic: fast heavy clatter with a bouncy body
+        "scene": {"move_speed": 70, "left_bound": 100, "right_bound": 880, "swing": 0,
+                  "step_rate": 2.2, "lift": 22, "bob": 6},
+    },
 }
 
 
