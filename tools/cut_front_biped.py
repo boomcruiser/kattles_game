@@ -117,6 +117,21 @@ CONFIGS = {
         "scene": {"move_speed": 60, "left_bound": 120, "right_bound": 840, "steps_per_sec": 2.2,
                   "lift": 10, "stride": 5, "bob": 4, "tilt": 0.05, "faces_left": True},
     },
+    "hissy": {
+        "title": "Hissy",
+        "source": "Kettles/hissy.png",
+        # portrait already 3/4 (spout leads: faces left); ground-shadow ellipse clipped
+        "floor": 546,
+        "parts": {
+            "leg_l": {"poly": [(186, 512), (262, 512), (262, 538), (253, 547), (198, 547), (186, 538)],
+                      "top": 512, "cut": 526, "pivot": (228, 519)},
+            "leg_r": {"poly": [(306, 512), (382, 512), (382, 538), (374, 547), (317, 547), (306, 538)],
+                      "top": 512, "cut": 526, "pivot": (342, 519)},
+        },
+        # fussy complainer: prim, clipped little steps, stiff body
+        "scene": {"move_speed": 45, "left_bound": 120, "right_bound": 840, "steps_per_sec": 2.0,
+                  "lift": 7, "stride": 3, "bob": 2, "tilt": 0.015, "faces_left": True},
+    },
 }
 
 # must match front_biped.gd defaults
