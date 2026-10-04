@@ -147,6 +147,21 @@ CONFIGS = {
         "scene": {"move_speed": 50, "left_bound": 120, "right_bound": 840, "steps_per_sec": 1.6,
                   "lift": 9, "stride": 5, "bob": 4, "tilt": 0.07, "faces_left": True},
     },
+    "inspector-vapour": {
+        "title": "InspectorVapour",
+        "source": "Kettles/inspector-vapour.png",
+        # portrait slightly turned (spout leads: faces left); figurine base disc clipped
+        "floor": 542,
+        "parts": {
+            "leg_l": {"poly": [(188, 505), (262, 505), (262, 540), (255, 548), (198, 548), (188, 540)],
+                      "top": 506, "cut": 522, "pivot": (230, 514)},
+            "leg_r": {"poly": [(345, 505), (420, 505), (420, 540), (412, 548), (355, 548), (345, 540)],
+                      "top": 506, "cut": 522, "pivot": (380, 514)},
+        },
+        # dignified detective: measured, stately steps, little sway
+        "scene": {"move_speed": 42, "left_bound": 120, "right_bound": 840, "steps_per_sec": 1.5,
+                  "lift": 9, "stride": 4, "bob": 3, "tilt": 0.02, "faces_left": True},
+    },
 }
 
 # must match front_biped.gd defaults
