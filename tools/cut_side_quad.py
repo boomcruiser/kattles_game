@@ -142,6 +142,32 @@ CONFIGS = {
         },
         "scene": {"move_speed": 65, "left_bound": 100, "right_bound": 880, "knee_bend": 0.6},
     },
+    "bubblehorn": {
+        # Hybrid: faithful regen of the ORIGINAL (pre-cutout) portrait from kattles_web's
+        # first commit, mirrored to face left, orange sticker border stripped
+        # (tools/strip_border.py). 3/4 view: front legs overlap, split at x~394.
+        "alpha": 110,
+        "legs": {
+            "leg1": {  # far front (behind the near front leg)
+                "poly": [(394, 780), (475, 780), (475, 1000), (394, 1000)],
+                "top": 800, "cut": 822, "hip": (428, 812), "knee": (428, 872),
+            },
+            "leg2": {  # near front
+                "poly": [(250, 780), (394, 780), (394, 1000), (250, 1000)],
+                "top": 795, "cut": 822, "hip": (335, 810), "knee": (335, 876), "near": True,
+            },
+            "leg3": {  # far back
+                "poly": [(645, 770), (820, 770), (820, 1000), (645, 1000)],
+                "top": 790, "cut": 808, "hip": (728, 800), "knee": (728, 875),
+            },
+            "leg4": {  # near back
+                "poly": [(475, 790), (645, 790), (645, 1000), (475, 1000)],
+                "top": 795, "cut": 822, "hip": (562, 812), "knee": (562, 878), "near": True,
+            },
+        },
+        # cheerful, curious, easily amazed: perky trot
+        "scene": {"move_speed": 60, "left_bound": 100, "right_bound": 880, "knee_bend": 0.6},
+    },
 }
 
 
