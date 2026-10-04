@@ -1,0 +1,41 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://side_quad.gd" id="0"]
+[ext_resource type="Texture2D" path="res://assets/puffalo_side/body.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/puffalo_side/leg1.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/puffalo_side/leg3.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/puffalo_side/leg2.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/puffalo_side/leg4.png" id="5"]
+
+[node name="Puffalo" type="Node2D"]
+script = ExtResource("0")
+move_speed = 38.0
+left_bound = 100.0
+right_bound = 880.0
+swing = 0.0
+step_rate = 1.3
+lift = 14.0
+bob = 5.0
+
+[node name="Leg1" type="Sprite2D" parent="."]
+position = Vector2(-192, 218)
+offset = Vector2(192, -218)
+texture = ExtResource("2")
+
+[node name="Leg3" type="Sprite2D" parent="."]
+position = Vector2(-81, 233)
+offset = Vector2(81, -233)
+texture = ExtResource("3")
+
+[node name="Body" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+
+[node name="Leg2" type="Sprite2D" parent="."]
+position = Vector2(-219, 233)
+offset = Vector2(219, -233)
+texture = ExtResource("4")
+
+[node name="Leg4" type="Sprite2D" parent="."]
+position = Vector2(85, 233)
+offset = Vector2(-85, -233)
+texture = ExtResource("5")

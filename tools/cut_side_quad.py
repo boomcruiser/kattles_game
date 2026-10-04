@@ -246,6 +246,32 @@ CONFIGS = {
         # calm, humble, gentle soul: steady unhurried walk
         "scene": {"move_speed": 50, "left_bound": 100, "right_bound": 880, "lift": 12},
     },
+    "puffalo": {
+        # Hybrid: ORIGINAL kattles_web cutout (faces left already); baked checker in the
+        # handle hole + between the legs cleared by pixel edit. Only 3 legs visible:
+        # leg1 is a hidden stub inside the body (drawn behind it).
+        "legs": {
+            "leg1": {  # far front: hidden, tucked behind the body
+                "poly": [(300, 700), (340, 700), (340, 760), (300, 760)],
+                "top": 700, "cut": 760, "hip": (320, 730),
+            },
+            "leg2": {  # near front
+                "poly": [(230, 720), (356, 720), (356, 1000), (230, 1000)],
+                "top": 735, "cut": 756, "hip": (293, 745), "near": True,
+            },
+            "leg3": {  # far back (middle visible leg)
+                "poly": [(366, 720), (496, 720), (496, 1000), (366, 1000)],
+                "top": 735, "cut": 756, "hip": (431, 745),
+            },
+            "leg4": {  # near back
+                "poly": [(532, 720), (662, 720), (662, 1000), (532, 1000)],
+                "top": 735, "cut": 756, "hip": (597, 745), "near": True,
+            },
+        },
+        # huge, gentle, calm giant: slow steady stomp, low rumble bob
+        "scene": {"move_speed": 38, "left_bound": 100, "right_bound": 880, "swing": 0,
+                  "step_rate": 1.3, "lift": 14, "bob": 5},
+    },
 }
 
 
