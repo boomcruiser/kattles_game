@@ -221,6 +221,31 @@ CONFIGS = {
         "scene": {"move_speed": 55, "left_bound": 100, "right_bound": 880, "swing": 0,
                   "step_rate": 1.8, "lift": 18, "bob": 4},
     },
+    "moosteam": {
+        # Hybrid: ORIGINAL kattles_web cutout (already a clear 3/4 facing left). Baked-in
+        # checkerboard cleared by color flood-fill + everything below the belly line
+        # outside the leg columns. Short straight legs: normal sweep walk, no knees.
+        "legs": {
+            "leg1": {  # far front (dark)
+                "poly": [(236, 820), (330, 820), (330, 1000), (236, 1000)],
+                "top": 830, "cut": 852, "hip": (284, 840),
+            },
+            "leg2": {  # near front (white)
+                "poly": [(362, 820), (462, 820), (462, 1000), (362, 1000)],
+                "top": 830, "cut": 852, "hip": (412, 840), "near": True,
+            },
+            "leg3": {  # far back (dark)
+                "poly": [(568, 820), (662, 820), (662, 1000), (568, 1000)],
+                "top": 830, "cut": 852, "hip": (615, 840),
+            },
+            "leg4": {  # near back (orange)
+                "poly": [(690, 810), (800, 810), (800, 1000), (690, 1000)],
+                "top": 825, "cut": 852, "hip": (743, 838), "near": True,
+            },
+        },
+        # calm, humble, gentle soul: steady unhurried walk
+        "scene": {"move_speed": 50, "left_bound": 100, "right_bound": 880, "lift": 12},
+    },
 }
 
 
