@@ -101,6 +101,23 @@ CONFIGS = {
         "scene": {"move_speed": 70, "left_bound": 120, "right_bound": 840, "steps_per_sec": 2.4,
                   "lift": 12, "stride": 4, "bob": 7, "tilt": 0.03, "faces_left": True},
     },
+    "grimey": {
+        "title": "Grimey",
+        # portrait faces dead-on with a planted-wide pose; generated 3/4 view turned
+        # left, neutral stance. Ink ground-shadow scribble is clipped via "floor".
+        "source_local": True,
+        "alpha": 110,
+        "floor": 928,  # below this row, keep only pixels inside the leg polygons
+        "parts": {
+            "leg_l": {"poly": [(180, 784), (450, 784), (450, 930), (441, 954), (180, 954)],
+                      "top": 786, "cut": 806, "pivot": (348, 796)},
+            "leg_r": {"poly": [(515, 784), (755, 784), (755, 971), (532, 971), (522, 940)],
+                      "top": 786, "cut": 806, "pivot": (622, 796)},
+        },
+        # sneaky henchman: quick, low, shifty scuttle
+        "scene": {"move_speed": 60, "left_bound": 120, "right_bound": 840, "steps_per_sec": 2.2,
+                  "lift": 10, "stride": 5, "bob": 4, "tilt": 0.05, "faces_left": True},
+    },
 }
 
 # must match front_biped.gd defaults
@@ -185,6 +202,13 @@ def main(name):
     h, w = src.shape[:2]
     alpha = src[..., 3] > cfg.get("alpha", 60)
     rows = np.arange(h)[:, None]
+    if "floor" in cfg:
+        # drop generated ground shadow: below the floor row keep only leg regions
+        legs_area = np.zeros((h, w), bool)
+        for pname, pc in cfg["parts"].items():
+            if pname.startswith("leg"):
+                legs_area |= poly_mask(src.shape, pc["poly"])
+        alpha &= ~((rows >= cfg["floor"]) & ~legs_area)
 
     px = src.astype(int)
     bright = ((px[..., 0] + px[..., 1]) / 2 > 125) & (px[..., 0] - px[..., 2] > 35)
