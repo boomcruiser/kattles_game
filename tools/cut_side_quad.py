@@ -272,6 +272,30 @@ CONFIGS = {
         "scene": {"move_speed": 38, "left_bound": 100, "right_bound": 880, "swing": 0,
                   "step_rate": 1.3, "lift": 14, "bob": 5},
     },
+    "whispy": {
+        # Hybrid: ORIGINAL kattles_web cutout (already 3/4 facing left); baked checker in
+        # the handle loop + spout gap cleared by seeded flood-fill.
+        "legs": {
+            "leg1": {  # far front (dark)
+                "poly": [(170, 840), (330, 840), (330, 1000), (170, 1000)],
+                "top": 848, "cut": 868, "hip": (245, 858),
+            },
+            "leg2": {  # near front (fluffy)
+                "poly": [(355, 840), (530, 840), (530, 1000), (355, 1000)],
+                "top": 848, "cut": 868, "hip": (430, 858), "near": True,
+            },
+            "leg3": {  # far back (dark)
+                "poly": [(535, 840), (680, 840), (680, 1000), (535, 1000)],
+                "top": 848, "cut": 868, "hip": (600, 858),
+            },
+            "leg4": {  # near back
+                "poly": [(700, 840), (860, 840), (860, 1000), (700, 1000)],
+                "top": 848, "cut": 872, "hip": (785, 860), "near": True,
+            },
+        },
+        # gentle, soft-spoken, hopeful: calm soft walk
+        "scene": {"move_speed": 45, "left_bound": 100, "right_bound": 880, "lift": 10, "bob": 2},
+    },
 }
 
 

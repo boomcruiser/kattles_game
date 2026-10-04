@@ -102,12 +102,24 @@ kattles_game/
   assets/<name>_side/  # source.png + body + legN (+ legN_lo knee parts)
 ```
 
-## Status
-- Cattles (8/8): Spotilda + Wanderella on the side-view knee rig; Buttercup, Daisybell, Fluffhorn,
+## Status — all 22 characters rigged
+- Cattles (8): Spotilda + Wanderella on the side-view knee rig; Buttercup, Daisybell, Fluffhorn,
   Moozie on the older rigid-leg side rig (user is fine with them — don't redo unprompted);
   Lieutenant Leather + Nocturna upright on the front biped rig.
-- Kettles: Rusty (old rusty.gd), Boilbert (front biped, portrait as-is). Next: Brewster, Bubbly,
-  Grimey, Hissy, Steamy, Inspector Vapour. Hybrids: not started.
+- Kettles (8): Rusty (old rusty.gd); Boilbert, Brewster, Bubbly, Grimey, Hissy, Steamy,
+  Inspector Vapour on the front biped rig (portrait as-is, except Grimey = faithful regen).
+- Hybrids (6): side_quad rig. Bubblehorn = faithful regen of the original; Clatterhoof,
+  Snortle, Puffalo = original art, stomp in place (`swing: 0`, `step_rate`); Moosteam, Whispy =
+  original art, sweep walk.
+
+## Hybrid art notes
+- The kattles_web Hybrid cutouts have baked checkerboard (fake transparency) in handle loops /
+  between legs; some lost fur to bad background removal. Clear checker by seeded flood-fill of
+  low-saturation light pixels, or clip below the belly outside the leg columns.
+- The user strongly prefers ORIGINAL art. Re-angled regens and pixel flips were rejected as
+  off-style. For front-ish portraits use stomp-in-place instead of new art.
+- Undamaged originals (opaque bg) live in kattles_web's first commit (`1bc655a`).
+- `tools/strip_border.py` removes an orange sticker border gpt-image-1 sometimes adds.
 
 ## Upright / front-view characters: `tools/cut_front_biped.py <name>` + `front_biped.gd`
 Body + LegL/LegR (behind body) + optional ArmL/ArmR (in front). March: legs lift in turn,
