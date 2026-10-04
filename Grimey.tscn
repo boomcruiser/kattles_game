@@ -18,13 +18,13 @@ tilt = 0.05
 faces_left = true
 
 [node name="LegL" type="Sprite2D" parent="."]
-position = Vector2(-164, 284)
-offset = Vector2(164, -284)
+position = Vector2(-150, 312)
+offset = Vector2(150, -312)
 texture = ExtResource("1")
 
 [node name="LegR" type="Sprite2D" parent="."]
-position = Vector2(110, 284)
-offset = Vector2(-110, -284)
+position = Vector2(122, 312)
+offset = Vector2(-122, -312)
 texture = ExtResource("2")
 
 [node name="Body" type="Sprite2D" parent="."]

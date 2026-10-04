@@ -103,16 +103,15 @@ CONFIGS = {
     },
     "grimey": {
         "title": "Grimey",
-        # portrait faces dead-on with a planted-wide pose; generated 3/4 view turned
-        # left, neutral stance. Ink ground-shadow scribble is clipped via "floor".
+        # near-faithful regen of the portrait (input_fidelity=high), only slightly turned
+        # left, ground shadow removed
         "source_local": True,
         "alpha": 110,
-        "floor": 928,  # below this row, keep only pixels inside the leg polygons
         "parts": {
-            "leg_l": {"poly": [(180, 784), (450, 784), (450, 930), (441, 954), (180, 954)],
-                      "top": 786, "cut": 806, "pivot": (348, 796)},
-            "leg_r": {"poly": [(515, 784), (755, 784), (755, 971), (532, 971), (522, 940)],
-                      "top": 786, "cut": 806, "pivot": (622, 796)},
+            "leg_l": {"poly": [(195, 812), (440, 812), (440, 960), (195, 960)],
+                      "top": 812, "cut": 834, "pivot": (362, 824)},
+            "leg_r": {"poly": [(565, 812), (805, 812), (805, 960), (565, 960)],
+                      "top": 812, "cut": 834, "pivot": (634, 824)},
         },
         # sneaky henchman: quick, low, shifty scuttle
         "scene": {"move_speed": 60, "left_bound": 120, "right_bound": 840, "steps_per_sec": 2.2,
