@@ -24,6 +24,10 @@ extends Node2D
 ## a front-ish 3/4 rig that stomps in place (hooves lift, no fore-aft sweep, so the
 ## gait has no direction to read "backwards").
 @export var step_rate: float = 0.0
+## Driven by a Director (episodes): the Actor wrapper owns travel and facing, the gait
+## runs only while `walking`, and the legs rest in their base pose otherwise.
+@export var directed: bool = false
+var walking: bool = true
 
 var _p: float = 0.0                ## cycle phase, 0..1
 var _dir: float = -1.0             ## start walking left (asset's natural facing)
@@ -61,6 +65,14 @@ func _leg_length(leg: Sprite2D) -> float:
 	return maxf(float(img.get_used_rect().end.y) - pivot_y, 40.0)
 
 func _process(delta: float) -> void:
+	if directed and not walking:
+		for i in _legs.size():
+			_legs[i].rotation = 0.0
+			_legs[i].position = _base[i]
+			if _lower[i]:
+				_lower[i].rotation = 0.0
+		_body.position.y = 0.0
+		return
 	_p = fposmod(_p + delta * _freq, 1.0)
 	for i in _legs.size():
 		var q := fposmod(_p + phases[i], 1.0)
@@ -83,6 +95,8 @@ func _process(delta: float) -> void:
 				leg.position = _base[i] + Vector2(0.0, -lift * sin(PI * s))
 	# body dips slightly twice per cycle (once per front/back pair)
 	_body.position.y = bob * 0.5 * (1.0 - cos(TAU * 2.0 * _p))
+	if directed:
+		return
 
 	# travel + face direction (asset faces left, so flip when going right)
 	position.x += _dir * move_speed * delta

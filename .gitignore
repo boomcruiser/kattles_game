@@ -8,3 +8,4 @@ assets/**/_*.png.import
 
 # Python
 __pycache__/
+renders/

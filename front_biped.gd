@@ -17,6 +17,10 @@ extends Node2D
 @export var move_speed: float = 55.0
 @export var left_bound: float = 120.0
 @export var right_bound: float = 840.0
+## Driven by a Director (episodes): the Actor wrapper owns travel and facing, the march
+## runs only while `walking`, and the parts rest in their base pose otherwise.
+@export var directed: bool = false
+var walking: bool = true
 
 var _p: float = 0.0
 var _dir: float = 1.0
@@ -34,6 +38,16 @@ func _ready() -> void:
 	_bs = absf(scale.x)
 
 func _process(delta: float) -> void:
+	if directed and not walking:
+		_p = 0.0
+		for part in _base:
+			part.position = _base[part]
+		_body.rotation = 0.0
+		if _arm_l:
+			_arm_l.rotation = 0.0
+		if _arm_r:
+			_arm_r.rotation = 0.0
+		return
 	_p = fposmod(_p + delta * steps_per_sec, 1.0)
 	var s := sin(TAU * _p)
 	_leg_l.position = _base[_leg_l] + Vector2(stride * s, -lift * maxf(0.0, s))
@@ -46,6 +60,8 @@ func _process(delta: float) -> void:
 		_arm_r.rotation = arm_swing * arm_r_amount * maxf(0.0, s)
 	_body.position = _base[_body] + Vector2(0.0, bob * 0.5 * (1.0 - cos(2.0 * TAU * _p)))
 	_body.rotation = tilt * s
+	if directed:
+		return
 
 	# travel; art is mirrored so it faces the direction of travel
 	position.x += _dir * move_speed * delta
