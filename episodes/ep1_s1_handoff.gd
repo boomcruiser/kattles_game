@@ -30,6 +30,8 @@ func run(d: Director) -> void:
 	await d.fade_out(0.5)
 	d.sub("")
 	d.reset_actors()
+	d.vo_hold = 0.15                                       # snappier back-and-forth than the cold open
+	d.vo_hold_per_char = 0.004
 	_build_set(d)
 	var vapour := d.spawn("vapour", "res://InspectorVapour.tscn", H + Vector2(DOOR.get_center().x, DOOR.end.y), VAPOUR_H, 1)
 	var rusty := d.spawn("rusty", "res://Rusty.tscn", H + Vector2(DOOR.get_center().x, DOOR.end.y), RUSTY_H, 1)
@@ -40,6 +42,7 @@ func run(d: Director) -> void:
 
 	# ---- morning, the door opens ------------------------------------------
 	d.cam_to(H + Vector2(960, 640), 0.55, 0.0)
+	d.ambience("morning_exterior", -10.0, 0.8)
 	await d.fade_in(0.8)
 	d.caption("[morning]")
 	d.cam_to(H + Vector2(1156, 960), 1.25, 4.0)
@@ -49,9 +52,12 @@ func run(d: Director) -> void:
 	d.caption("")
 	d.sfx("*creak*", H + Vector2(1100, 860), 18)
 	_doorway.visible = true
-	await d.wait(0.5)
+	await d.wait(0.3)
 	vapour.visible = true
+	var steps := d.play_sfx("vapour_steps", -6.0)
 	await _step_out(vapour, H + Vector2(960, FLOOR))
+	if is_instance_valid(steps):
+		steps.stop()
 	d.face("vapour", 1)
 	await d.say("vapour", "Allez, allez! Ze sun is up, and so are you!")
 	rusty.visible = true
@@ -77,16 +83,16 @@ func run(d: Director) -> void:
 	await d.say("vapour", "Of course, you will not be working alone.")
 	await d.say("vapour", "Ze Princess 'as assigned you… a supervisor.", {"hold": 0.4})
 	await d.say("rusty", "A supervisor? Let me guess — Boilbert? Lieutenant Leather?")
-	await d.say("vapour", "Non.", {"hold": 0.2})
-	d.caption("[points at the hay bales]")
 	dukie.visible = true
-	await d.cam_to(H + Vector2(1500, 900), 1.7, 0.9)
+	d.say("vapour", "Non.", {"hold": 0.0})
+	await d.wait(0.6)
+	d.caption("[points at the hay bales]")
+	await d.cam_to(H + Vector2(1500, 900), 1.7, 0.7)
 	d.caption("")
-	await d.wait(0.4)
 	d.sfx("*squeak squeak*", H + Vector2(1530, 840), 18)      # chewing the bunny
 	d.pop("dukie", 0.3)
-	await d.wait(0.6)
-	await d.say("dukie", "Woof!", {"hold": 0.2})
+	await d.wait(0.4)
+	await d.say("dukie", "Woof!", {"hold": 0.1})
 	await d.cam_to(rusty.head_pos() + Vector2(0, 90), 2.2, 0.2, Tween.TRANS_EXPO)
 	d.pop("rusty", 0.9)
 	d.steam("rusty", 14, 0.8)
@@ -98,8 +104,10 @@ func run(d: Director) -> void:
 	tw = dukie.create_tween()
 	tw.tween_property(dukie, "position", H + Vector2(1430, FLOOR), 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await tw.finished
+	d.play_sfx("dog_land")
 	await d.walk("dukie", H.x + 1370)
 	d.caption("[sniff sniff]")
+	d.play_sfx("sniff")
 	for i in 2:
 		d.pop("dukie", 0.12)
 		await d.wait(0.3)
@@ -114,7 +122,7 @@ func run(d: Director) -> void:
 	d.caption("[clips a leash onto Rusty's handle]")
 	d.sfx("*click*", rusty.head_pos() + Vector2(10, -20), 16)
 	d.tether(func(): return _mouth(dukie), func(): return rusty.to_global(Vector2(0, -0.95 * RUSTY_H)), Color("b8322a"), 3.5)
-	await d.wait(1.0)
+	await d.wait(0.5)
 	d.caption("")
 	tw = rusty.create_tween()
 	tw.tween_property(rusty, "squash", Vector2(1.0, 0.92), 0.4)
@@ -130,12 +138,12 @@ func run(d: Director) -> void:
 	d.caption("")
 	d.cam_to(M + Vector2(480, 320), 1.0, 0.0)
 	await d.wait(0.6)
-	await d.say("vapour", "One: scrub ze soot in Steamtown.", {"keep": true})
-	await _circle(d, TOWN, 95.0)
-	await d.say("vapour", "Two: fix ze fence in ze Cattle Valley.", {"keep": true})
-	await _circle(d, VALLEY, 110.0)
-	await d.say("vapour", "Three: light ze lanterns in ze Hybrid 'Ollow.", {"keep": true})
-	await _circle(d, HOLLOW, 100.0)
+	_circle(d, TOWN, 95.0)                                # each stop inked while it's read out
+	await d.say("vapour", "One: scrub ze soot in Steamtown.", {"keep": true, "hold": 0.2})
+	_circle(d, VALLEY, 110.0)
+	await d.say("vapour", "Two: fix ze fence in ze Cattle Valley.", {"keep": true, "hold": 0.2})
+	_circle(d, HOLLOW, 100.0)
+	await d.say("vapour", "Three: light ze lanterns in ze Hybrid 'Ollow.", {"keep": true, "hold": 0.3})
 	await d.say("rusty", "…The Hybrids?", {"hold": 0.4})
 	await d.say("vapour", "All before sundown.", {"hold": 0.4})
 
@@ -149,7 +157,8 @@ func run(d: Director) -> void:
 	await d.say("rusty", "And if I don't?")
 	var cup := _teacup(d, vapour.position + Vector2(34, -90))
 	d.caption("[sips tea]")
-	await d.wait(1.0)
+	d.play_sfx("sip")
+	await d.wait(0.7)
 	d.caption("")
 	await d.say("vapour", "Zen… more decaf.", {"hold": 0.5})
 	var shiver := rusty.create_tween().set_loops(5)       # shudders
@@ -167,11 +176,13 @@ func run(d: Director) -> void:
 	d.face("dukie", 1)
 	d.pop("dukie", 0.2)
 	await d.wait(0.4)
-	await d.say("rusty", "Don't. Don't you dare—", {"hold": 0.1})
-	d.say("dukie", "WOOF!", {"shout": true})
+	await d.say("rusty", "No…", {"hold": 0.5})
+	d.pop("dukie", 0.1)                                   # crouches, wiggling
+	await d.say("rusty", "Don't you dare…", {"hold": 0.7})
+	d.say("dukie", "WOOF! WOOF!", {"shout": true})
 	await _drag_off(d, dukie, rusty)
 	d.cam_to(H + Vector2(1000, 1010), 1.4, 0.6)
-	await d.wait(0.5)
+	await d.wait(0.2)
 	d.face("vapour", 1)
 	await d.say("vapour", "Bon courage, mon ami.", {"hold": 0.6})
 	cup.queue_free()
@@ -180,6 +191,7 @@ func run(d: Director) -> void:
 	d.cam_to(M + Vector2(480, 320), 1.0, 0.0)
 	await _route(d, JAIL, TOWN)
 	await d.wait(0.8)
+	d.ambience("", 0.0, 0.6)
 	await d.fade_out(0.6)
 
 # ------------------------------------------------------------------ beats
@@ -196,12 +208,14 @@ func _step_out(a: Actor, to: Vector2, secs: float = 1.0) -> void:
 ## Dukie bolts after the butterfly; the leash yanks Rusty flat and drags him off.
 func _drag_off(d: Director, dukie: Actor, rusty: Actor) -> void:
 	dukie.walk_to(H.x + 2300, 9.0)
+	d.play_sfx("dukie_bolt")
 	await d.wait(0.35)
 	d.sfx("YANK", rusty.head_pos() + Vector2(30, -10), 22)
 	var tw := rusty.create_tween()
 	tw.tween_property(rusty, "rotation", PI / 2, 0.15)    # knocked flat (like the newspaper)
 	await tw.finished
-	d.say("rusty", "WHOA—!", {"shout": true})
+	d.say("rusty", "OWWWW—!", {"shout": true})
+	d.play_sfx("drag_scrape")
 	var dust := d.puff(rusty.position, 10, 0.5, Color(0.8, 0.7, 0.5), 2, true)
 	tw = rusty.create_tween()
 	tw.tween_method(func(x: float):
@@ -214,6 +228,7 @@ func _drag_off(d: Director, dukie: Actor, rusty: Actor) -> void:
 func _circle(d: Director, at: Vector2, r: float) -> void:
 	var l := d.line(PackedVector2Array(), Color("a8321e"), 4.0, 2)
 	_circles.append(l)
+	d.play_sfx("ink_circle", -4.0)
 	var pts := PackedVector2Array()
 	for i in 41:                                          # a little over one loop, wobbly
 		var a := -PI / 2 + TAU * 1.08 * i / 40.0
@@ -225,6 +240,7 @@ func _circle(d: Director, at: Vector2, r: float) -> void:
 ## Dotted trail inked from one stop to the next.
 func _route(d: Director, from: Vector2, to: Vector2) -> void:
 	var ctrl := (from + to) * 0.5 + Vector2(-90, 0)
+	d.play_sfx("ink_circle", -6.0)
 	for i in range(1, 15):
 		var t := i / 15.0
 		d.dot(M + from.lerp(ctrl, t).lerp(ctrl.lerp(to, t), t), 4.0, Color("a8321e"), 2)

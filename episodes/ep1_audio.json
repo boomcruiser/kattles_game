@@ -2,7 +2,8 @@
   "dir": "assets/audio/ep1",
   "voices": {
     "rusty": "JEeSZKbQkSeYOP1zOj6y",
-    "vapour": "Vb2vAh6RIU4DS4QyHyYA"
+    "vapour": "Vb2vAh6RIU4DS4QyHyYA",
+    "dukie": "8DPBVVnfn0Cti23BGSz9"
   },
   "lines": [
     {
@@ -104,6 +105,161 @@
       "who": "vapour",
       "text": "…community service!",
       "say": "[cheerful] Community service!"
+    },
+    {
+      "who": "vapour",
+      "text": "Allez, allez! Ze sun is up, and so are you!",
+      "say": "[cheerful] Allez, allez! Ze sun is up, and so are you!"
+    },
+    {
+      "who": "rusty",
+      "text": "Ugh. Is that… the sun?",
+      "say": "[groggy, annoyed] Ugh. Is that... the sun?"
+    },
+    {
+      "who": "rusty",
+      "text": "Great. Now I'm gonna get a tan.",
+      "say": "[grumbling] Great. Now I'm gonna get a tan."
+    },
+    {
+      "who": "vapour",
+      "text": "Monsieur… zat is not a tan. Zat is rust.",
+      "say": "[dry, matter-of-fact] Monsieur... zat is not a tan. Zat is rust."
+    },
+    {
+      "who": "rusty",
+      "text": "It's a VINTAGE FINISH.",
+      "say": "[offended] It's a vintage finish."
+    },
+    {
+      "who": "rusty",
+      "text": "Do you know what UV does to a vintage finish?",
+      "say": "[indignant] Do you know what UV does to a vintage finish?"
+    },
+    {
+      "who": "vapour",
+      "text": "Of course, you will not be working alone.",
+      "say": "[cheerful] Of course, you will not be working alone."
+    },
+    {
+      "who": "vapour",
+      "text": "Ze Princess 'as assigned you… a supervisor.",
+      "say": "[proud, teasing] Ze Princess 'as assigned you... a supervisor."
+    },
+    {
+      "who": "rusty",
+      "text": "A supervisor? Let me guess — Boilbert? Lieutenant Leather?",
+      "say": "[smug] A supervisor? Let me guess... Boilbert? Lieutenant Leather?"
+    },
+    {
+      "who": "vapour",
+      "text": "Non.",
+      "say": "[amused] Non."
+    },
+    {
+      "who": "dukie",
+      "text": "Woof!",
+      "say": "[happy bark] Woof!"
+    },
+    {
+      "who": "rusty",
+      "text": "The PUPPY?!",
+      "say": "[shocked, indignant] The PUPPY?!"
+    },
+    {
+      "who": "dukie",
+      "text": "Woof! Bad kettle. Dukie watch.",
+      "say": "[stern but cute] Woof! Bad kettle. Dukie watch."
+    },
+    {
+      "who": "rusty",
+      "text": "That mutt is the reason I'm in here!",
+      "say": "[annoyed] That mutt is the reason I'm in here!"
+    },
+    {
+      "who": "vapour",
+      "text": "Exactement. 'E caught you once…",
+      "say": "[smug] Exactement. 'E caught you once..."
+    },
+    {
+      "who": "vapour",
+      "text": "…'e can catch you again.",
+      "say": "[smug] 'E can catch you again."
+    },
+    {
+      "who": "rusty",
+      "text": "Oh, come ON.",
+      "say": "[exasperated] Oh, come ON."
+    },
+    {
+      "who": "vapour",
+      "text": "Now. Your tasks.",
+      "say": "[businesslike] Now. Your tasks."
+    },
+    {
+      "who": "vapour",
+      "text": "One: scrub ze soot in Steamtown.",
+      "say": "[reading a list] One: scrub ze soot in Steamtown."
+    },
+    {
+      "who": "vapour",
+      "text": "Two: fix ze fence in ze Cattle Valley.",
+      "say": "[reading a list] Two: fix ze fence in ze Cattle Valley."
+    },
+    {
+      "who": "vapour",
+      "text": "Three: light ze lanterns in ze Hybrid 'Ollow.",
+      "say": "[reading a list] Three: light ze lanterns in ze Hybrid 'Ollow."
+    },
+    {
+      "who": "rusty",
+      "text": "…The Hybrids?",
+      "say": "[uneasy] The Hybrids?"
+    },
+    {
+      "who": "vapour",
+      "text": "All before sundown.",
+      "say": "[cheerful] All before sundown."
+    },
+    {
+      "who": "rusty",
+      "text": "And if I don't?",
+      "say": "[defiant] And if I don't?"
+    },
+    {
+      "who": "vapour",
+      "text": "Zen… more decaf.",
+      "say": "[sly] Zen... more decaf."
+    },
+    {
+      "who": "rusty",
+      "text": "…Fine.",
+      "say": "[defeated grumble] Fine."
+    },
+    {
+      "who": "dukie",
+      "text": "WOOF! WOOF!",
+      "say": "[excited barking] WOOF! WOOF!"
+    },
+    {
+      "who": "vapour",
+      "text": "Bon courage, mon ami.",
+      "say": "[cheerful] Bon courage, mon ami."
+    },
+    {
+      "who": "rusty",
+      "text": "No…",
+      "say": "[slow, warning] No..."
+    },
+    {
+      "who": "rusty",
+      "text": "Don't you dare…",
+      "say": "[low, slow warning] Don't... you... dare..."
+    },
+    {
+      "who": "rusty",
+      "text": "OWWWW—!",
+      "say": "[yelping in pain as he gets yanked] OWWWW!"
     }
   ],
   "sfx": {
@@ -166,6 +322,50 @@
     "vapour_steps": [
       "small metal kettle feet walking briskly on a stone floor, clinky tapping footsteps, steady pace",
       3.0
+    ],
+    "moo_a_doodle_doo": [
+      "a cow mooing in the rhythm of a rooster crow, 'moo-a-doodle-doo', comedic, distant farm morning",
+      2.5
+    ],
+    "creak": [
+      "an old heavy wooden door creaking open slowly",
+      1.5
+    ],
+    "squeak_squeak": [
+      "a dog chewing a rubber squeaky toy, two squeaks",
+      1.0
+    ],
+    "dog_land": [
+      "a small dog hopping down onto soft dirt, light thump",
+      0.5
+    ],
+    "sniff": [
+      "a small dog sniffing quickly, sniff sniff sniff",
+      1.0
+    ],
+    "click": [
+      "a metal leash clip snapping shut, crisp click",
+      0.5
+    ],
+    "ink_circle": [
+      "a quill pen scribbling quickly on parchment paper",
+      0.8
+    ],
+    "sip": [
+      "a dainty slurping sip of hot tea from a china teacup",
+      1.0
+    ],
+    "dukie_bolt": [
+      "dog paws scrabbling and taking off running fast on dirt, cartoon zip",
+      1.0
+    ],
+    "yank": [
+      "a sudden rope yank with a metal clunk as something is pulled over, cartoon",
+      0.7
+    ],
+    "drag_scrape": [
+      "a metal kettle being dragged fast across a dirt path, scraping and rattling, cartoon",
+      1.6
     ]
   },
   "ambience": {
@@ -175,6 +375,10 @@
     ],
     "cell": [
       "quiet echoey stone jail cell at night, low room tone, distant faint pipe hum, very soft occasional creak, no dripping, no music",
+      20
+    ],
+    "morning_exterior": [
+      "peaceful sunny morning outside a farm building, birds chirping, gentle breeze, distant soft steam hisses and faint machinery from a town far away, no music",
       20
     ]
   },

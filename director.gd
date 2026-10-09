@@ -123,7 +123,7 @@ func say(id: String, text: String, opts: Dictionary = {}) -> void:
 	else:
 		await wait(text.length() * (0.025 if shout else 0.045))
 	a.talking = false
-	await wait(opts.get("hold", (0.5 if vo else 0.9) + text.length() * (0.015 if vo else 0.035)))
+	await wait(opts.get("hold", (vo_hold + text.length() * vo_hold_per_char) if vo else (0.9 + text.length() * 0.035)))
 	if not opts.get("keep", false) and _sub_serial == line:
 		sub("")
 
@@ -143,6 +143,10 @@ func _show_sub(text: String, size: int, color: Color) -> void:
 	_subs.label_settings.font_size = size
 	_subs.label_settings.font_color = color
 	_subs.visible = text != ""
+
+## Default pause after a voiced line (secs + per character); a scene can tighten it.
+var vo_hold: float = 0.5
+var vo_hold_per_char: float = 0.015
 
 var _subs: Label
 var _sub_owner: String = ""
