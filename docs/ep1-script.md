@@ -94,9 +94,9 @@ Grimey, Snortle, Whispy).
 - Vapour: *"Now. Your tasks."* Map insert (`assets/props/chore_map.png`), each stop circled in red ink:
   *"One: scrub ze soot in Steamtown. Two: fix ze fence in ze Cattle Valley. Three: light ze
   lanterns in ze Hybrid 'Ollow."* Rusty: *"…The Hybrids?"* Vapour: *"All before sundown."*
-- Rusty: *"And if I don't?"* Vapour sips tea: *"Zen… more decaf."* Rusty shudders. *"…Fine."*
-- A butterfly drifts past; Dukie's eyes follow it. *"Don't. Don't you dare—"* *"WOOF!"* — Dukie
-  bolts, the leash yanks Rusty flat and drags him off (*"WHOA—!"*). Vapour: *"Bon courage, mon ami."*
+- Rusty: *"And if I don't?"* Vapour sips tea from his own spout: *"Zen… more decaf."* Rusty shudders. *"…Fine."*
+- A butterfly drifts past; Dukie's eyes follow it. *"No…"* (beat) *"Don't… you… dare…"*
+  *"WOOF! WOOF!"* — Dukie bolts, the leash yanks Rusty flat and drags him off (*"OWWWW—!"*). Vapour: *"Bon courage, mon ami."* Another sip from the spout: *"Mmm… zat is some good sheet."*
 - Map card: dotted trail inks from the jail to Steamtown. Fade.
 
 ---

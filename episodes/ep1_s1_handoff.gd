@@ -155,11 +155,7 @@ func run(d: Director) -> void:
 	d.cam_to(H + Vector2(1180, 1010), 1.25, 0.0)
 	await d.wait(0.3)
 	await d.say("rusty", "And if I don't?")
-	var cup := _teacup(d, vapour.position + Vector2(34, -90))
-	d.caption("[sips tea]")
-	d.play_sfx("sip")
-	await d.wait(0.7)
-	d.caption("")
+	await _sip(d, vapour, 1.6)                           # a long, unbothered sip
 	await d.say("vapour", "Zen… more decaf.", {"hold": 0.5})
 	var shiver := rusty.create_tween().set_loops(5)       # shudders
 	shiver.tween_property(rusty, "position:x", rusty.position.x - 4.0, 0.04)
@@ -184,8 +180,9 @@ func run(d: Director) -> void:
 	d.cam_to(H + Vector2(1000, 1010), 1.4, 0.6)
 	await d.wait(0.2)
 	d.face("vapour", 1)
-	await d.say("vapour", "Bon courage, mon ami.", {"hold": 0.6})
-	cup.queue_free()
+	await d.say("vapour", "Bon courage, mon ami.", {"hold": 0.3})
+	await _sip(d, vapour, 1.1)
+	await d.say("vapour", "Mmm… zat is some good sheet.", {"hold": 0.6})
 
 	# ---- to Steamtown -----------------------------------------------------
 	d.cam_to(M + Vector2(480, 320), 1.0, 0.0)
@@ -252,12 +249,21 @@ func _mouth(dukie: Actor) -> Vector2:
 	var k := DUKIE_H / 590.0
 	return dukie.to_global(Vector2((440 - 300) * k, -(592 - 165) * k + dukie.puppet.get_node("Body").position.y * dukie.puppet.scale.y))
 
-func _teacup(d: Director, at: Vector2) -> Node2D:
-	var g := d.group(at, 1.0, 0.0, 3)
-	d.rect(Rect2(-14, 10, 28, 3), Color("d9ccb0"), 0, g)
-	d.rect(Rect2(-9, -6, 18, 16), Color("f0e6cc"), 0, g)
-	d.line(PackedVector2Array([Vector2(9, -3), Vector2(14, 0), Vector2(9, 6)]), Color("f0e6cc"), 2.5, 0, g)
-	return g
+## Vapour sips tea from his own spout (his "hand"): the puppet swaps to a posed
+## sprite (assets/props/vapour_sip.png, 776x843, faces left like the rig) for a beat.
+func _sip(d: Director, vapour: Actor, secs: float = 0.9) -> void:
+	var k := VAPOUR_H / 835.0 * 0.93                       # matches the rig's on-screen size
+	var s := d.sprite("res://assets/props/vapour_sip.png", vapour.position + Vector2(0, -843 * k * 0.5 + 4 * k), k, vapour.z_index, true)
+	s.flip_h = vapour.facing > 0
+	vapour.visible = false
+	d.play_sfx("sip")
+	d.puff(vapour.position + Vector2(vapour.facing * 22.0, -VAPOUR_H * 0.52), 4, 0.3, Color.WHITE, vapour.z_index + 1)
+	var tw := s.create_tween()                           # a little lean back while savouring
+	tw.tween_property(s, "rotation", -vapour.facing * 0.06, secs * 0.4)
+	tw.tween_property(s, "rotation", 0.0, secs * 0.4).set_delay(secs * 0.2)
+	await tw.finished
+	s.queue_free()
+	vapour.visible = true
 
 func _butterfly(d: Director, at: Vector2) -> Node2D:
 	var g := d.group(at, 1.0, 0.0, 4)
