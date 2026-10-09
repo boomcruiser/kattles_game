@@ -42,7 +42,8 @@ func run(d: Director) -> void:
 	d.reset_clock()
 	_lyrics(d)                                           # runs alongside the montage
 	await _montage(d, shots)
-	await song.finished
+	if is_instance_valid(song) and song.playing:
+		await song.finished
 
 # ------------------------------------------------------------------ sting
 

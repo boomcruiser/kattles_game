@@ -6,7 +6,7 @@ extends Node2D
 ## captions and floating sfx text. Keys: R replay, Esc quit. When recording with
 ## --write-movie the game quits as soon as the episode ends.
 
-@export_file("*.gd") var episode: String = "res://episodes/ep1_cold_open.gd"
+@export_file("*.gd") var episode: String = "res://episodes/ep1.gd"
 ## Global pacing: scales every walk, tween, wait and particle (Engine.time_scale).
 @export var speed: float = 1.25
 
@@ -47,6 +47,9 @@ func _process(delta: float) -> void:
 	clock += delta
 	cam.offset = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * _shake
 	_shake = move_toward(_shake, 0.0, delta * 30.0)
+	for t in _tethers:
+		if is_instance_valid(t[0]):
+			_hang(t[0], t[1].call(), t[2].call())
 
 # ---------------------------------------------------------------- actors
 
@@ -70,6 +73,32 @@ func walk(id: String, x: float, speed_mul: float = 1.0) -> void:
 	a.walk_to(x, speed_mul)
 	if a.puppet.get("walking"):
 		await a.arrived
+
+## Free every actor (new scene, new cast). Set dressing stays where it was.
+func reset_actors() -> void:
+	for a in actors.values():
+		(a as Node).queue_free()
+	actors.clear()
+	_tethers.clear()
+
+## A rope between two moving points (a leash). `from` / `to` are Callables returning
+## world positions; it sags when slack and pulls straight when taut.
+func tether(from: Callable, to: Callable, color: Color = Color("5a3420"), width: float = 4.0, z: int = 3) -> Line2D:
+	var l := line(PackedVector2Array(), color, width, z)
+	_tethers.append([l, from, to])
+	_hang(l, from.call(), to.call())
+	return l
+
+var _tethers: Array = []
+
+func _hang(l: Line2D, a: Vector2, b: Vector2) -> void:
+	var sag := clampf(140.0 - a.distance_to(b) * 0.45, 4.0, 90.0)
+	var mid := (a + b) * 0.5 + Vector2(0, sag)
+	var pts := PackedVector2Array()
+	for i in 13:
+		var t := i / 12.0
+		pts.append(a.lerp(mid, t).lerp(mid.lerp(b, t), t))
+	l.points = pts
 
 func face(id: String, dir: float) -> void:
 	(actors[id] as Actor).facing = dir
@@ -312,8 +341,9 @@ func play_music(path: String, volume_db: float = 0.0) -> AudioStreamPlayer:
 	p.stream = load(path)
 	p.volume_db = volume_db
 	add_child(p)
-	p.play()
 	p.finished.connect(p.queue_free)
+	# fast-forwarding: start at the very end so anything awaiting .finished moves on
+	p.play(maxf(0.0, p.stream.get_length() - 0.05) if _skip_to else 0.0)
 	return p
 
 ## Play a music track to the end (awaitable).

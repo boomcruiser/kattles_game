@@ -32,6 +32,8 @@ func setup(path: String, h: float) -> void:
 		natural_dir = 1.0
 	elif puppet.get_script().resource_path.ends_with("front_biped.gd"):
 		natural_dir = -1.0 if puppet.get("faces_left") else 1.0
+	elif puppet.get("natural_dir") != null:           # simple sprite puppets (Dukie)
+		natural_dir = puppet.get("natural_dir")
 	var ms = puppet.get("move_speed")
 	if ms != null:
 		speed = ms
