@@ -47,7 +47,7 @@ func run(d: Director) -> void:
 	d.caption("[morning]")
 	d.cam_to(H + Vector2(1156, 960), 1.25, 4.0)
 	await d.wait(1.6)
-	d.sfx("Moo-a-doodle-doo!", H + Vector2(1500, 760), 22)   # a Cattle doing the rooster's job
+	d.sfx("Mooo…", H + Vector2(1500, 760), 20)              # a distant Cattle, morning
 	await d.wait(2.4)
 	d.caption("")
 	d.sfx("*creak*", H + Vector2(1100, 860), 18)

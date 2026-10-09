@@ -80,7 +80,7 @@ Grimey, Snortle, Whispy).
 
 ## Scene 1 — The handoff (`episodes/ep1_s1_handoff.gd`)
 - Morning, wide on Kattles Jail (`assets/sets/jail_exterior_day.png`), push in.
-  Offscreen Cattle: *"Moo-a-doodle-doo!"*
+  A distant, low *"Mooo…"*
 - Door creaks open. Vapour steps out: *"Allez, allez! Ze sun is up, and so are you!"*
   Rusty shuffles out of the dark, squints: *"Ugh. Is that… the sun? Great. Now I'm gonna get a tan."*
   Vapour: *"Monsieur… zat is not a tan. Zat is rust."* Rusty: *"It's a VINTAGE FINISH. Do you know

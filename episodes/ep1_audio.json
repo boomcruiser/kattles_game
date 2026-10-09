@@ -328,10 +328,6 @@
       "small metal kettle feet walking briskly on a stone floor, clinky tapping footsteps, steady pace",
       3.0
     ],
-    "moo_a_doodle_doo": [
-      "a cow mooing in the rhythm of a rooster crow, 'moo-a-doodle-doo', comedic, distant farm morning",
-      2.5
-    ],
     "creak": [
       "an old heavy wooden door creaking open slowly",
       1.5
@@ -371,6 +367,10 @@
     "drag_scrape": [
       "a metal kettle being dragged fast across a dirt path, scraping and rattling, cartoon",
       1.6
+    ],
+    "mooo": [
+      "a single clear cow moo, close-up, dry, outdoors, no other sounds (then pitched down ~3.5 semitones, low-passed, quiet)",
+      2.0
     ]
   },
   "ambience": {
