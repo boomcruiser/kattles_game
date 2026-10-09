@@ -10,14 +10,16 @@ const FLOOR := 1180.0               ## Rusty's floor line inside the cell
 const FRONT := 1345.0               ## visitors' floor line, in front of the bars
 const NIGHT := Color(0.8, 0.74, 0.64)
 const SCRATCH := Color(0.78, 0.72, 0.6, 0.85)  ## tally marks scratched into stone
-const TALLY3_TOP := Vector2(1464, 828)
-const TALLY3_END := Vector2(1466, 874)
+const TALLY3_TOP := Vector2(1448, 880)
+const TALLY3_END := Vector2(1450, 924)
+const RUSTY_BACK_X := 1560.0          ## back-view Rusty: raised hand just right of the marks
 const WIDE := Vector2(1440, 1080)   ## cell wide shot (zoom 1)
 const SCROLL_K := 90.0 / 480.0      ## decree_scroll.png -> 90 world px tall
 const ThemeSong := preload("res://episodes/theme.gd")
 const EXT := Vector2(-3000, 0)      ## jail_exterior.png top-left (1536 px -> 960 world px)
 
 var _tally3: Line2D
+var _rusty_back: Sprite2D
 var _teabag: Node2D
 var _spider: Node2D
 
@@ -71,16 +73,23 @@ func run(d: Director) -> void:
 	tw.tween_property(rusty, "position", Vector2(1340, FLOOR), 0.35)
 	d.play_sfx("hop_down")
 	await tw.finished
-	await d.walk("rusty", 1560)
-	d.face("rusty", -1)
-	await d.cam_to(Vector2(1460, 855), 3.0, 0.8)          # two marks already
+	await d.walk("rusty", RUSTY_BACK_X)
+	rusty.visible = false                                # turns to the wall: back view
+	_rusty_back.visible = true
+	await d.cam_to(Vector2(1490, 930), 2.0, 0.8)          # two marks already
 	await d.wait(0.6)
-	d.sfx("SCREEEECH", Vector2(1478, 812), 16)
+	d.sfx("SCREEEECH", Vector2(1420, 845), 16)
+	var jig := _rusty_back.create_tween().set_loops(4)    # scratching jitter
+	jig.tween_property(_rusty_back, "position:x", RUSTY_BACK_X - 6.0, 0.08)
+	jig.tween_property(_rusty_back, "position:x", RUSTY_BACK_X, 0.08)
 	_tally3.visible = true
 	var tw3 := _tally3.create_tween()                    # third mark, scratched in
 	tw3.tween_method(func(t: float): _tally3.points = PackedVector2Array([TALLY3_TOP, TALLY3_TOP.lerp(TALLY3_END, t)]), 0.0, 1.0, 0.7)
 	await tw3.finished
 	await d.wait(0.5)
+	_rusty_back.visible = false                          # turns back around
+	rusty.visible = true
+	d.face("rusty", 1)
 	await d.cam_to(Vector2(1500, 960), 1.4, 1.6)          # pull back
 	await d.say("rusty", "Three days?", {"hold": 0.3})
 	await d.say("rusty", "That's a lifetime in Kattle years.")
@@ -120,16 +129,17 @@ func run(d: Director) -> void:
 	tw = rusty.create_tween()
 	tw.tween_property(rusty, "squash", Vector2(1.0, 0.93), 1.4)
 	await tw.finished
-	await d.wait(1.0)
+	await d.wait(0.4)
 	rusty.squash = Vector2.ONE
-	await d.say("rusty", "…That can't be good.", {"hold": 1.4})
+	await d.say("rusty", "…That can't be good.", {"hold": 0.5})
 
-	await d.cam_to(Vector2(1712, 860), 3.0, 0.9)          # the spider
+	d.cam_to(Vector2(1712, 860), 3.0, 0.6)                # the spider
+	await d.wait(0.3)
 	_wiggle(_spider)
 	d.play_sfx("skitter")
-	await d.wait(1.4)
-	await d.say("rusty", "Don't look at me like that.")
-	await d.cam_to(Vector2(1610, 1050), 1.8, 0.8)
+	await d.wait(0.8)
+	await d.say("rusty", "What? Like you've never farted in public?", {"hold": 0.6})
+	await d.cam_to(Vector2(1610, 1050), 1.8, 0.6)
 
 
 	# ---- 0:50 scheming ----------------------------------------------------
@@ -162,8 +172,8 @@ func run(d: Director) -> void:
 	vapour.position.x = 720
 	var steps := d.play_sfx("vapour_steps", -4.0)        # clinky kettle footsteps
 	d.walk("vapour", 1030, 1.8)
-	await d.wait(0.5)
-	await d.say("rusty", "What the heck?", {"hold": 0.2})
+	await d.wait(1.3)
+	await d.say("rusty", "What the heck?", {"hold": 0.5})
 	await d.walk("vapour", 1030, 1.8)
 	if is_instance_valid(steps):
 		steps.stop()
@@ -244,8 +254,12 @@ func _build_set(d: Director) -> void:
 	d.rect(Rect2(1920, 0, 600, 1440), Color("141817"), 6)          # beyond the painting
 
 	# tally marks (third appears on cue)
-	for x in [1440.0, 1452.0]:
-		d.line(PackedVector2Array([Vector2(x, 828), Vector2(x + 2, 874)]), SCRATCH, 3)
+	for x in [1424.0, 1436.0]:
+		d.line(PackedVector2Array([Vector2(x, 880), Vector2(x + 2, 924)]), SCRATCH, 3)
+	# Rusty from behind (assets/props/rusty_back.png), swapped in while he scratches
+	_rusty_back = d.sprite("res://assets/props/rusty_back.png", Vector2(RUSTY_BACK_X, FLOOR - 135.0), 230.0 / 920.0, 0, true)   # on tiptoe
+	_rusty_back.modulate = NIGHT
+	_rusty_back.visible = false
 	_tally3 = d.line(PackedVector2Array([TALLY3_TOP, TALLY3_TOP]), SCRATCH, 3)
 	_tally3.visible = false
 

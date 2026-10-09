@@ -34,7 +34,7 @@ themselves, Kate's pigeons' stardust saved the day, and Dukie caught Rusty. Rust
   *"Decaf?!" … "…Yuck."*
 - Brews it himself: drops the teabag in his lid, strains. Sounds only — plop, glug glug,
   CLANK, wheeeeze, a puff of rust dust. Beat. *"…That can't be good."*
-- Spider in the corner staring at him. *"Don't look at me like that."*
+- Spider in the corner staring at him. *"What? Like you've never farted in public?"*
 
 ### 0:50–1:20 · Scheming
 - One short pace under a sneaky tension music bed (no thought line).
