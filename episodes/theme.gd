@@ -5,7 +5,10 @@ extends RefCounted
 ## track (whisper word timestamps); the montage is driven by d.until() on a clock reset
 ## when the band comes in. Each shot lives in its own patch of world far to the left.
 
-const SONG := "res://assets/audio/theme/hardrock1.mp3"   ## see docs/theme-song.md
+## Theme version (docs/theme-song.md). Each is pre-split at the sting/band boundary
+## (2.83s) into <name>_sting.mp3 + <name>_band.mp3, so the band always starts on its
+## downbeat after the silent hold (stopping/seeking one file live clipped the hit).
+const SONG := "res://assets/audio/theme/hardrock1"
 const STAGE := Vector2(-6000, 300)                       ## silhouette stage (black void)
 const BG := 0.9375                                       ## 1024 px painting -> 960 world px
 const NIGHT := Color(0.8, 0.74, 0.64)
@@ -56,7 +59,7 @@ func _sting(d: Director) -> AudioStreamPlayer:
 		_silhouette(d, "s_kettle2", "res://Steamy.tscn", o + Vector2(95, 300), 230, -1.0, Color(0.45, 0.65, 1.0)),
 	]
 	d.hide_card()
-	var song := d.play_music(SONG)
+	var sting := d.play_music(SONG + "_sting.mp3")
 	# Moo (0.00) / moo (0.78): spotlights slam on, cattle pop up
 	for i in 2:
 		d.sub(["Moo!", "Moo moo!"][i])
@@ -69,12 +72,12 @@ func _sting(d: Director) -> AudioStreamPlayer:
 		d.sub(["Hiss…", "Hiss hiss…"][i], Color(0.75, 0.85, 1.0))
 		_reveal(d, kettles[i], true)
 		await d.wait(0.65 if i == 0 else 0.77)
-	# stop just before the band (2.82), hold the tableau in silence, band on the cut
-	var band := song.get_playback_position()
-	song.stop()
+	# sting ends (2.83), hold the tableau in silence, the band hits on the cut
+	if is_instance_valid(sting) and sting.playing:
+		await sting.finished
 	await d.wait(0.7)
 	d.sub("")
-	song.play(band)
+	var song := d.play_music(SONG + "_band.mp3")
 	d.flash(1.0)
 	return song
 
