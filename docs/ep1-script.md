@@ -30,19 +30,19 @@ themselves, Kate's pigeons' stardust saved the day, and Dukie caught Rusty. Rust
 ### 0:20–0:50 · Hating his life
 - Close on the wall: two tally marks already. SCREEEECH — he scratches a third.
   Pull back. *"Three days?" … "That's a lifetime in Kattle years."*
-- Breakfast through the slot: a single sad teabag (`assets/props/teabag_decaf.png`). Close on the tag: **DECAF**.
+- Breakfast through the slot. Rusty: *"Eh… what do we have for dinner?"* A single sad teabag (`assets/props/teabag_decaf.png`). Close on the tag: **DECAF**.
   *"Decaf?!" … "…Yuck."*
 - Brews it himself: drops the teabag in his lid, strains. Sounds only — plop, glug glug,
   CLANK, wheeeeze, a puff of rust dust. Beat. *"…That can't be good."*
 - Spider in the corner staring at him. *"Don't look at me like that."*
 
 ### 0:50–1:20 · Scheming
-- Paces, scheming. Thought bubble: *"…the boiler… the palace… Kattles Day…"* (no wall drawing)
+- One short pace under a sneaky tension music bed (no thought line).
 - *"Heh. They think bars can hold me? Next Kattles Day… I'll—"*
 - Evil laugh builds: *"Heh… heh heh… HEH HEH HA—"*
 
 ### 1:20–1:45 · The interruption
-- Keys jangle. Inspector Vapour enters, cheerful, holding a scroll.
+- Keys jangle (tension cuts dead). Rusty: *"What the heck?"* as Inspector Vapour walks in, cheerful, holding a scroll.
 - Vapour: *"Bonjour, Rusty! I bring news from ze Princess 'erself."*
 - Rusty whistles innocently.
 - Plain, small scroll (`assets/props/decree_scroll.png`), no close-up. Vapour: *"By royal decree… you are sentenced to…"* (dramatic pause) *"…community service!"*

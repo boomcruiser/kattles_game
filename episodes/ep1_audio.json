@@ -1,0 +1,191 @@
+{
+  "dir": "assets/audio/ep1",
+  "voices": {
+    "rusty": "JEeSZKbQkSeYOP1zOj6y",
+    "vapour": "Vb2vAh6RIU4DS4QyHyYA"
+  },
+  "lines": [
+    {
+      "who": "rusty",
+      "text": "Is anyone going to fix that damn thing?!",
+      "say": "[annoyed, shouting up] Is anyone going to fix that damn thing?!"
+    },
+    {
+      "who": "rusty",
+      "text": "Three days?",
+      "say": "[annoyed] Three days?"
+    },
+    {
+      "who": "rusty",
+      "text": "That's a lifetime in Kattle years.",
+      "say": "[sighs] That's a lifetime in Kattle years."
+    },
+    {
+      "who": "rusty",
+      "text": "Eh… what do we have for dinner?",
+      "say": "[grumbling] Eh, what do we have for dinner?"
+    },
+    {
+      "who": "rusty",
+      "text": "Decaf?!",
+      "say": "[outraged] Decaf?!"
+    },
+    {
+      "who": "rusty",
+      "text": "…Yuck.",
+      "say": "[disgusted] Yuck."
+    },
+    {
+      "who": "rusty",
+      "text": "…That can't be good.",
+      "say": "[worried] That can't be good."
+    },
+    {
+      "who": "rusty",
+      "text": "Don't look at me like that.",
+      "say": "[annoyed] Don't look at me like that."
+    },
+    {
+      "who": "rusty",
+      "text": "Heh. They think bars can hold me?",
+      "say": "[smug] Heh. They think bars can hold me?"
+    },
+    {
+      "who": "rusty",
+      "text": "Next Kattles Day… I'll—",
+      "say": "[menacing] Next Kattles Day, I'll—"
+    },
+    {
+      "who": "rusty",
+      "text": "Heh…",
+      "say": "[chuckles] Heh."
+    },
+    {
+      "who": "rusty",
+      "text": "heh heh…",
+      "say": "[evil chuckle] Heh heh."
+    },
+    {
+      "who": "rusty",
+      "text": "What the heck?",
+      "say": "[startled] What the heck?"
+    },
+    {
+      "who": "rusty",
+      "text": "HEH HEH HA—",
+      "say": "[evil laugh] Heh heh ha—"
+    },
+    {
+      "who": "rusty",
+      "text": "♪ fweet fwee-fweet ♪",
+      "sfx": "a single person whistling a short innocent nonchalant three-note tune, pretending nothing happened, dry"
+    },
+    {
+      "who": "rusty",
+      "text": "COMMUNITY SERVICE?!",
+      "say": "[shocked, indignant] COMMUNITY SERVICE?!"
+    },
+    {
+      "who": "vapour",
+      "text": "Bonjour, Rusty! I bring news from ze Princess 'erself.",
+      "say": "[cheerful] Bonjour, Rusty! I bring news from ze Princess 'erself."
+    },
+    {
+      "who": "vapour",
+      "text": "By royal decree…",
+      "say": "[pompous] By royal decree..."
+    },
+    {
+      "who": "vapour",
+      "text": "…you are sentenced to…",
+      "say": "[dramatic] You are sentenced to..."
+    },
+    {
+      "who": "vapour",
+      "text": "…community service!",
+      "say": "[cheerful] Community service!"
+    }
+  ],
+  "sfx": {
+    "drip": [
+      "a single water drop falling into a puddle in a stone dungeon, echoey",
+      1.2
+    ],
+    "haaah": [
+      "a long tired exhale of steam from a kettle, a weary sigh hiss",
+      1.6
+    ],
+    "screeeech": [
+      "metal scratching a line into a stone wall, a sharp screech",
+      1.0
+    ],
+    "thunk": [
+      "a small soft object dropping through a metal slot onto a stone floor, dull thunk",
+      0.8
+    ],
+    "plop": [
+      "a teabag plopping into water inside a metal kettle, small wet plop",
+      0.6
+    ],
+    "glug_glug": [
+      "water glugging and gurgling inside an old metal kettle",
+      1.4
+    ],
+    "clank": [
+      "a hollow metallic clank inside an old rusty kettle, cartoon",
+      0.8
+    ],
+    "wheeeeeeze": [
+      "an old rusty kettle trying to whistle but only producing a sad weak wheezing squeak, cartoon",
+      2.0
+    ],
+    "jangle_jangle": [
+      "a big ring of old iron jail keys jangling, then a key turning in a heavy lock",
+      1.6
+    ],
+    "hop_down": [
+      "a small metal object hopping down off a wooden bunk onto stone, light clunk",
+      0.6
+    ],
+    "scroll": [
+      "a parchment scroll being unrolled, paper rustle",
+      1.0
+    ],
+    "lid_pop": [
+      "a kettle lid popping off with a metal clang and a big burst of steam hiss, cartoon",
+      1.4
+    ],
+    "freeze_whoosh": [
+      "a short cartoon freeze-frame whoosh hit",
+      0.8
+    ],
+    "skitter": [
+      "a tiny spider skittering its legs, quick creepy little scuttle, cartoon",
+      1.0
+    ],
+    "vapour_steps": [
+      "small metal kettle feet walking briskly on a stone floor, clinky tapping footsteps, steady pace",
+      3.0
+    ]
+  },
+  "ambience": {
+    "night_exterior": [
+      "quiet night outside an old stone building in a steampunk town, distant machinery hum, soft wind, occasional faint steam hiss, a pipe dripping, no music",
+      20
+    ],
+    "cell": [
+      "quiet echoey stone jail cell at night, low room tone, distant faint pipe hum, very soft occasional creak, no dripping, no music",
+      20
+    ]
+  },
+  "music": {
+    "scheme_tension": [
+      "sneaky suspenseful villain scheming underscore for an animated show: low pizzicato strings, soft bassoon, ticking clock, slowly building tension, mischievous and comedic, instrumental, no vocals",
+      20000
+    ]
+  },
+  "voice_settings": {
+    "stability": 0.5,
+    "speed": 1.1
+  }
+}

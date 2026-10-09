@@ -22,6 +22,7 @@ var _teabag: Node2D
 var _spider: Node2D
 
 func run(d: Director) -> void:
+	d.audio_dir = "res://assets/audio/ep1"              # episodes/ep1_audio.json
 	_build_set(d)
 	var rusty := d.spawn("rusty", "res://Rusty.tscn", Vector2(1270, 1040), 230)
 	rusty.modulate = NIGHT
@@ -31,6 +32,7 @@ func run(d: Director) -> void:
 	# ---- 0:00 establishing ------------------------------------------------
 	d.mark("exterior")
 	# exterior: slow push-in on the glowing barred window
+	d.ambience("night_exterior", -8.0, 0.5)
 	d.cam_to(EXT + Vector2(480, 320), 1.0, 0.0)
 	var spout := d.puff(EXT + Vector2(196, 152), 6, 0.35, Color(0.7, 0.72, 0.8), -9, true)
 	d.cam_to(EXT + Vector2(330, 360), 1.7, 7.0)
@@ -42,6 +44,7 @@ func run(d: Director) -> void:
 	await d.fade_out(0.6)                                 # dip to black, cut inside
 	spout.queue_free()
 	d.cam_to(Vector2(330, 1110), 2.2, 0.0)
+	d.ambience("cell", -10.0, 0.6)
 	await d.wait(0.3)
 	d.sfx("drip…", Vector2(250, 1010))
 	await d.fade_in(0.6)
@@ -59,13 +62,14 @@ func run(d: Director) -> void:
 	for i in 3:                                          # let the drip get to him
 		d.sfx("drip…", Vector2(1720, 1050))
 		await d.wait(1.4)
-	await d.say("rusty", "Is anyone going to fix that damn thing?!", {"hold": 1.2})
+	await d.say("rusty", "Is anyone going to fix that damn thing?!", {"hold": 0.6})
 	await d.wait(0.4)
 
 	# ---- 0:20 hating his life ---------------------------------------------
 	d.mark("cell")
 	var tw := rusty.create_tween()
 	tw.tween_property(rusty, "position", Vector2(1340, FLOOR), 0.35)
+	d.play_sfx("hop_down")
 	await tw.finished
 	await d.walk("rusty", 1560)
 	d.face("rusty", -1)
@@ -78,22 +82,24 @@ func run(d: Director) -> void:
 	await tw3.finished
 	await d.wait(0.5)
 	await d.cam_to(Vector2(1500, 960), 1.4, 1.6)          # pull back
-	await d.say("rusty", "Three days?", {"hold": 0.6})
+	await d.say("rusty", "Three days?", {"hold": 0.3})
 	await d.say("rusty", "That's a lifetime in Kattle years.")
 
 	d.sfx("thunk", Vector2(1690, 1240), 20)
 	tw = _teabag.create_tween()
 	tw.tween_property(_teabag, "position:y", 1200.0, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	d.caption("[breakfast through the slot: one cold teabag]")
+	d.say("rusty", "Eh… what do we have for dinner?")
 	await d.walk("rusty", 1625)
 	d.face("rusty", 1)
 	await d.cam_to(Vector2(1660, 1080), 1.6, 0.8)
 	d.caption("")
+	await d.wait(0.8)
 	await d.cam_to(Vector2(1702, 1168), 4.0, 0.6)          # read the tag
 	await d.wait(1.4)
 	await d.cam_to(Vector2(1640, 1060), 1.8, 0.5)
-	await d.say("rusty", "Decaf?!", {"hold": 0.5})
-	await d.say("rusty", "…Yuck.", {"hold": 1.0})
+	await d.say("rusty", "Decaf?!", {"hold": 0.3})
+	await d.say("rusty", "…Yuck.", {"hold": 0.6})
 
 	# brews it himself: teabag into the lid, strain, the rusty boiler gives out
 	tw = _teabag.create_tween()
@@ -120,6 +126,7 @@ func run(d: Director) -> void:
 
 	await d.cam_to(Vector2(1712, 860), 3.0, 0.9)          # the spider
 	_wiggle(_spider)
+	d.play_sfx("skitter")
 	await d.wait(1.4)
 	await d.say("rusty", "Don't look at me like that.")
 	await d.cam_to(Vector2(1610, 1050), 1.8, 0.8)
@@ -127,13 +134,12 @@ func run(d: Director) -> void:
 
 	# ---- 0:50 scheming ----------------------------------------------------
 	d.mark("scheme")
+	var tension := d.play_music("res://assets/audio/ep1/music/scheme_tension.mp3", -9.0)
 	await d.cam_to(WIDE, 1.0, 0.8)
 	d.caption("[pacing, scheming]")
-	await d.walk("rusty", 1300, 1.6)
-	await d.walk("rusty", 1640, 1.6)
+	await d.walk("rusty", 1330, 1.6)
 	await d.walk("rusty", 1430, 1.6)
 	d.caption("")
-	await d.say("rusty", "…the boiler… the palace… Kattles Day…", {"think": true})
 	d.face("rusty", 1)
 	await d.cam_to(WIDE, 1.1, 0.8)
 	await d.say("rusty", "Heh. They think bars can hold me?")
@@ -148,16 +154,25 @@ func run(d: Director) -> void:
 	# ---- 1:20 the interruption --------------------------------------------
 	d.mark("vapour")
 	d.clear("rusty")
+	if is_instance_valid(tension):
+		tension.stop()
 	d.sfx("*JANGLE JANGLE*", Vector2(1000, 1050), 30)
 	d.pop("rusty", 0.5)
 	await d.cam_to(Vector2(1160, 1090), 1.0, 0.25, Tween.TRANS_EXPO)
 	vapour.position.x = 720
+	var steps := d.play_sfx("vapour_steps", -4.0)        # clinky kettle footsteps
+	d.walk("vapour", 1030, 1.8)
+	await d.wait(0.5)
+	await d.say("rusty", "What the heck?", {"hold": 0.2})
 	await d.walk("vapour", 1030, 1.8)
+	if is_instance_valid(steps):
+		steps.stop()
 	d.face("rusty", -1)
 	await d.say("vapour", "Bonjour, Rusty! I bring news from ze Princess 'erself.")
 	d.caption("[whistling innocently]")
 	await d.say("rusty", "♪ fweet fwee-fweet ♪")
 	d.caption("[unrolls a royal scroll]")
+	d.play_sfx("scroll")
 	var scroll := d.sprite("res://assets/props/decree_scroll.png", Vector2(1068, 1140), 0.0, 11)
 	scroll.modulate = NIGHT
 	scroll.scale = Vector2(SCROLL_K, 0.0)                 # unrolls downward from the top roller
@@ -177,12 +192,15 @@ func run(d: Director) -> void:
 	await d.cam_to(rusty.head_pos() + Vector2(0, 60), 2.6, 0.2, Tween.TRANS_EXPO)
 	await d.wait(0.5)
 	d.caption("[lid pops — steam burst]")
+	d.play_sfx("lid_pop")
 	d.steam("rusty", 34, 1.7)
 	d.shake(14.0)
 	d.pop("rusty", 1.4)
 	await d.say("rusty", "COMMUNITY SERVICE?!", {"shout": true, "keep": true, "hold": 0.1})
 	d.caption("")
 	d.freeze()
+	d.play_sfx("freeze_whoosh")
+	d.ambience("", 0.0, 0.2)
 	await d.wait(0.3)
 	d.hold_card("")
 	d.clear("rusty")
