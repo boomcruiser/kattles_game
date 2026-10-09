@@ -14,8 +14,7 @@ const TALLY3_TOP := Vector2(1464, 828)
 const TALLY3_END := Vector2(1466, 874)
 const WIDE := Vector2(1440, 1080)   ## cell wide shot (zoom 1)
 const SCROLL_K := 90.0 / 480.0      ## decree_scroll.png -> 90 world px tall
-const THEME := "res://assets/audio/theme/hardrock1.mp3"  ## see docs/theme-song.md
-const STAGE := Vector2(-6000, 300)  ## theme silhouette stage (black void)
+const ThemeSong := preload("res://episodes/theme.gd")
 const EXT := Vector2(-3000, 0)      ## jail_exterior.png top-left (1536 px -> 960 world px)
 
 var _tally3: Line2D
@@ -186,68 +185,8 @@ func run(d: Director) -> void:
 	d.freeze()
 	await d.wait(0.3)
 	d.hold_card("")
-	await _theme_open(d)
-
-## Theme song: the a cappella sting as silhouette hits, then the band over the main
-## theme art. Hit times are measured from the track (whisper word timestamps).
-func _theme_open(d: Director) -> void:
-	d.mark("theme")
-	d.set_speed(1.0)                                     # visuals sync to real-time audio
 	d.clear("rusty")
-	var o := STAGE
-	d.rect(Rect2(o + Vector2(-700, -500), Vector2(1400, 1000)), Color.BLACK, -20)
-	d.cam_to(o, 1.0, 0.0)
-	var cows := [
-		_silhouette(d, "cow1", "res://Spotilda.tscn", o + Vector2(-290, 200), 300, 1.0, Color(1.0, 0.85, 0.55)),
-		_silhouette(d, "cow2", "res://Buttercup.tscn", o + Vector2(290, 200), 300, -1.0, Color(1.0, 0.85, 0.55)),
-	]
-	var kettles := [
-		_silhouette(d, "kettle1", "res://Rusty.tscn", o + Vector2(-85, 300), 230, 1.0, Color(0.45, 0.65, 1.0)),
-		_silhouette(d, "kettle2", "res://Steamy.tscn", o + Vector2(95, 300), 230, -1.0, Color(0.45, 0.65, 1.0)),
-	]
-	d.hide_card()
-	var song := d.play_music(THEME)
-	# Moo (0.00) / moo (0.78): spotlights slam on, cattle pop up
-	for i in 2:
-		_reveal(d, cows[i], false)
-		await d.wait(0.78 if i == 0 else 0.62)
-	# Hiss (1.40) / hiss (2.05): lights dim, kettles rise from below trailing steam
-	for c in cows:
-		var tw: Tween = c.glow.create_tween()
-		tw.tween_property(c.glow, "modulate:a", 0.25, 0.3)
-	for i in 2:
-		_reveal(d, kettles[i], true)
-		await d.wait(0.65 if i == 0 else 0.77)
-	# stop just before the band (2.82), hold the tableau in silence so it lands, then
-	# the band slams in on the cut
-	var band := song.get_playback_position()
-	song.stop()
-	await d.wait(0.7)
-	song.play(band)
-	d.flash(1.0)
-	d.hold_card("[ MAIN THEME ART — TBD ]\n\nTHE KATTLES SHOW")
-	await song.finished
-
-## A black puppet with a coloured light pool behind it, hidden until revealed.
-func _silhouette(d: Director, id: String, path: String, pos: Vector2, h: float, facing: float, light: Color) -> Dictionary:
-	var a := d.spawn(id, path, pos, h, 5, facing)
-	a.modulate = Color(0, 0, 0, 0)
-	var g := d.glow(pos + Vector2(0, -h * 0.5), h * 1.1, Color(light, 0.0), 4)
-	return {"actor": a, "glow": g, "light": light}
-
-func _reveal(d: Director, s: Dictionary, rise: bool) -> void:
-	var a: Actor = s.actor
-	a.modulate = Color(0, 0, 0, 1)
-	s.glow.modulate = Color(s.light, 0.9)
-	if rise:                                             # up from below the frame
-		var y: float = a.position.y
-		var top := a.head_pos()                          # where the lid ends up
-		a.position.y += 260.0
-		var tw := a.create_tween()
-		tw.tween_property(a, "position:y", y, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tw.tween_callback(func(): d.puff(top + Vector2(0, 10), 10, 0.8, Color(0.85, 0.9, 1.0), 6))
-	else:
-		d.pop(a.name, 0.6)
+	await ThemeSong.new().run(d)
 
 func _wiggle(n: Node2D) -> void:
 	var tw := n.create_tween().set_loops(3)

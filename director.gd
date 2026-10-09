@@ -17,13 +17,11 @@ var actors: Dictionary = {}          ## id -> Actor
 
 const SCREEN := Vector2(960, 540)
 var _shake: float = 0.0
-var _bubbles: Dictionary = {}        ## actor id -> PanelContainer
 var _caption: Label
 var _card: ColorRect
 var _card_label: Label
 var _flash: ColorRect
 var _puff: Texture2D
-var _bubble_layer: Control
 
 func _ready() -> void:
 	for arg in OS.get_cmdline_user_args():             # godot ... -- --from=<section>
@@ -46,16 +44,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_tree().quit()
 
 func _process(delta: float) -> void:
+	clock += delta
 	cam.offset = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * _shake
 	_shake = move_toward(_shake, 0.0, delta * 30.0)
-	var xf := get_viewport().get_canvas_transform()
-	for id in _bubbles:
-		var p: PanelContainer = _bubbles[id]
-		var head: Vector2 = xf * (actors[id] as Actor).head_pos()
-		var pos := head - Vector2(p.size.x / 2.0, p.size.y + 24.0)
-		p.position = pos.clamp(Vector2(8, 8), SCREEN - p.size - Vector2(8, 8))
-		var tail: Node2D = p.get_node("Tail")
-		tail.position = Vector2(clampf(head.x - p.position.x, 20.0, p.size.x - 20.0), p.size.y - 3.0)
 
 # ---------------------------------------------------------------- actors
 
@@ -83,33 +74,44 @@ func walk(id: String, x: float, speed_mul: float = 1.0) -> void:
 func face(id: String, dir: float) -> void:
 	(actors[id] as Actor).facing = dir
 
-## Speech bubble over the actor's head: types out while the actor talk-bobs, holds,
-## then clears. opts: shout (big bold bubble), think (cloud bubble, trail of puffs, no
-## talk-bob), hold (secs after typing), keep (leave
-## it up until the actor's next line / clear()).
+## A line of dialogue as a subtitle while the actor talk-bobs for the time it takes to
+## say it, holds, then clears. opts: shout (bigger), think (grey, in parentheses, no
+## talk-bob), hold (secs after speaking), keep (leave it up until the next line / clear()).
 func say(id: String, text: String, opts: Dictionary = {}) -> void:
 	var a: Actor = actors[id]
-	clear(id)
 	var shout: bool = opts.get("shout", false)
 	var think: bool = opts.get("think", false)
-	var p := _make_bubble(text, shout, think)
-	_bubble_layer.add_child(p)
-	_bubbles[id] = p
-	var l: Label = p.get_node("Text")
-	l.visible_ratio = 0.0
+	_show_sub("(%s)" % text if think else text, 34 if shout else 24,
+		Color(0.8, 0.8, 0.85) if think else Color.WHITE)
+	_sub_owner = id
+	var line := _sub_serial
 	a.talking = not think
-	var tw := create_tween()
-	tw.tween_property(l, "visible_ratio", 1.0, text.length() * (0.025 if shout else 0.045))
-	await tw.finished
+	await wait(text.length() * (0.025 if shout else 0.045))
 	a.talking = false
 	await wait(opts.get("hold", 0.9 + text.length() * 0.035))
-	if not opts.get("keep", false) and _bubbles.get(id) == p:
-		clear(id)
+	if not opts.get("keep", false) and _sub_serial == line:
+		sub("")
 
+## Clear the subtitle if it is still this actor's line.
 func clear(id: String) -> void:
-	if _bubbles.has(id):
-		(_bubbles[id] as Node).queue_free()
-		_bubbles.erase(id)
+	if _sub_owner == id:
+		sub("")
+
+## Raw subtitle (song lyrics, sound cues); "" clears.
+func sub(text: String, color: Color = Color.WHITE, size: int = 24) -> void:
+	_show_sub(text, size, color)
+	_sub_owner = ""
+
+func _show_sub(text: String, size: int, color: Color) -> void:
+	_sub_serial += 1
+	_subs.text = text
+	_subs.label_settings.font_size = size
+	_subs.label_settings.font_color = color
+	_subs.visible = text != ""
+
+var _subs: Label
+var _sub_owner: String = ""
+var _sub_serial: int = 0
 
 ## Squash-and-hop (surprise, lid pop).
 func pop(id: String, big: float = 1.0) -> void:
@@ -122,6 +124,27 @@ func pop(id: String, big: float = 1.0) -> void:
 	tw.tween_property(a, "position:y", y0, 0.16).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	tw.parallel().tween_property(a, "squash", Vector2.ONE, 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 	await tw.finished
+
+## Hop and flip head-over-heels around the body's middle (playful spin).
+func spin(id: String, turns: float = 1.0, dur: float = 0.7, hop: float = 70.0) -> void:
+	var a: Actor = actors[id]
+	var feet := a.position
+	var tw := create_tween()
+	tw.tween_method(func(t: float):
+		var th := -a.facing * TAU * turns * t
+		var mid := feet + Vector2(0, -a.height * 0.5 - hop * sin(PI * t))
+		a.rotation = th
+		a.position = mid + Vector2(0, a.height * 0.5).rotated(th), 0.0, 1.0, dur).set_trans(Tween.TRANS_SINE)
+	await tw.finished
+	a.rotation = 0.0
+	a.position = feet
+
+## Bob to a beat (loops `beats` times, `period` secs per beat): nodding along to music.
+func groove(id: String, period: float = 0.46, beats: int = 8) -> void:
+	var a: Actor = actors[id]
+	var tw := create_tween().set_loops(beats)
+	tw.tween_property(a, "squash", Vector2(1.06, 0.92), period * 0.35).set_trans(Tween.TRANS_QUAD)
+	tw.tween_property(a, "squash", Vector2.ONE, period * 0.65).set_trans(Tween.TRANS_QUAD)
 
 ## Steam puffs from the actor's lid/head (tint for smoke / rust dust).
 func steam(id: String, amount: int = 10, big: float = 1.0, tint: Color = Color.WHITE) -> void:
@@ -166,6 +189,17 @@ func freeze() -> void:
 	flash()
 
 # ---------------------------------------------------------------- camera / timing
+
+## Episode clock (game time) for syncing to music: reset_clock() at a downbeat, then
+## `await until(t)` lands each beat at an absolute time, so waits never drift.
+var clock: float = 0.0
+
+func reset_clock() -> void:
+	clock = 0.0
+
+func until(t: float) -> void:
+	while clock < t:
+		await get_tree().process_frame
 
 func wait(secs: float) -> void:
 	await get_tree().create_timer(secs).timeout
@@ -368,11 +402,21 @@ func group(pos: Vector2, scl: float = 1.0, rot: float = 0.0, z: int = -5) -> Nod
 # ---------------------------------------------------------------- internals
 
 func _build_ui() -> void:
-	_bubble_layer = Control.new()       # below captions/cards/flash
-	_bubble_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ui.add_child(_bubble_layer)
-	_caption = Label.new()
-	_caption.position = Vector2(80, 490)
+	_subs = Label.new()
+	_subs.position = Vector2(60, 455)
+	_subs.size = Vector2(840, 70)
+	_subs.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_subs.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	_subs.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var ss := LabelSettings.new()
+	ss.font_size = 24
+	ss.outline_size = 7
+	ss.outline_color = Color(0, 0, 0, 0.95)
+	_subs.label_settings = ss
+	_subs.visible = false
+	ui.add_child(_subs)
+	_caption = Label.new()                # stage directions: top of frame
+	_caption.position = Vector2(80, 14)
 	_caption.size = Vector2(800, 0)
 	_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -406,58 +450,6 @@ func _build_ui() -> void:
 	_flash.color = Color(1, 1, 1, 0)
 	_flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui.add_child(_flash)
-
-func _make_bubble(t: String, shout: bool, think: bool = false) -> PanelContainer:
-	var fs := 30 if shout else 18
-	var p := PanelContainer.new()
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(1, 1, 0.96)
-	sb.set_corner_radius_all(28 if think else 16)
-	sb.set_content_margin_all(12)
-	sb.border_color = Color(0.1, 0.08, 0.06)
-	sb.set_border_width_all(4 if shout else 2)
-	p.add_theme_stylebox_override("panel", sb)
-	var l := Label.new()
-	l.name = "Text"
-	l.text = t
-	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var ls := LabelSettings.new()
-	ls.font_size = fs
-	ls.font_color = Color(0.35, 0.32, 0.3) if think else Color(0.1, 0.08, 0.06)
-	l.label_settings = ls
-	var w := ThemeDB.fallback_font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-	l.custom_minimum_size.x = minf(w + 4.0, 340.0)
-	p.add_child(l)
-	var tail := Node2D.new()
-	tail.name = "Tail"
-	if think:
-		# trail of shrinking puffs toward the head
-		for i in 3:
-			var r := 7.0 - i * 2.0
-			var c := Vector2(i * 4.0, 10.0 + i * 11.0)
-			tail.add_child(_circle(c, r + 2.0, sb.border_color))
-			tail.add_child(_circle(c, r, sb.bg_color))
-	else:
-		var edge := Polygon2D.new()
-		edge.polygon = PackedVector2Array([Vector2(-13, -2), Vector2(13, -2), Vector2(0, 20)])
-		edge.color = sb.border_color
-		var fill := Polygon2D.new()
-		fill.polygon = PackedVector2Array([Vector2(-10, -4), Vector2(10, -4), Vector2(0, 15)])
-		fill.color = sb.bg_color
-		tail.add_child(edge)
-		tail.add_child(fill)
-	p.add_child(tail)
-	p.position = Vector2(-1000, -1000)   # placed by _process once it has a size
-	return p
-
-func _circle(c: Vector2, r: float, color: Color) -> Polygon2D:
-	var p := Polygon2D.new()
-	var pts := PackedVector2Array()
-	for i in 16:
-		pts.append(c + Vector2.from_angle(TAU * i / 16.0) * r)
-	p.polygon = pts
-	p.color = color
-	return p
 
 func _puff_tex() -> Texture2D:
 	if _puff == null:
