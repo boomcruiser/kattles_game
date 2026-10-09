@@ -213,6 +213,17 @@ func fade_in(secs: float = 0.4) -> void:
 	tw.tween_property(_card, "modulate:a", 0.0, secs)
 	await tw.finished
 
+## Play a music track to the end (awaitable). Audio runs in real time, unaffected by
+## `speed`.
+func music(path: String, volume_db: float = 0.0) -> void:
+	var p := AudioStreamPlayer.new()
+	p.stream = load(path)
+	p.volume_db = volume_db
+	add_child(p)
+	p.play()
+	await p.finished
+	p.queue_free()
+
 ## Show a card and leave it up (end of a cold open).
 func hold_card(text: String) -> void:
 	_card_label.text = text

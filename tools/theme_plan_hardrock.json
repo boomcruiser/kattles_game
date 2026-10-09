@@ -1,0 +1,73 @@
+{
+  "composition_plan": {
+    "positive_global_styles": [
+      "animated TV show theme song",
+      "1970s classic hard rock",
+      "chunky riff-driven electric guitars",
+      "prominent cowbell throughout",
+      "harmonized lead vocals",
+      "driving drums and bass",
+      "swagger",
+      "130 bpm"
+    ],
+    "negative_global_styles": [
+      "pop punk",
+      "slow",
+      "ballad",
+      "long intro",
+      "spoken word",
+      "fade out"
+    ],
+    "sections": [
+      {
+        "section_name": "verse 1",
+        "positive_local_styles": [
+          "full band from the first beat",
+          "driving"
+        ],
+        "negative_local_styles": [
+          "intro",
+          "build-up"
+        ],
+        "duration_ms": 7000,
+        "lines": [
+          "They're stompin' in the valley, they're boilin' in the town,",
+          "There's a princess on the throne tryin' to calm 'em all down"
+        ]
+      },
+      {
+        "section_name": "verse 2",
+        "positive_local_styles": [
+          "straight on from verse 1 with no break",
+          "bigger",
+          "a gruff pirate voice shouts the ad-lib in parentheses"
+        ],
+        "negative_local_styles": [
+          "pause",
+          "break"
+        ],
+        "duration_ms": 8500,
+        "lines": [
+          "There's Hybrids in the hollow, half kettle, half cow!",
+          "And Kattlefish splashin' in the lagoon, (Arr, take a bow!)",
+          "There's a villain in the slammer and a puppy on the go"
+        ]
+      },
+      {
+        "section_name": "outro",
+        "positive_local_styles": [
+          "huge group shout",
+          "final big hit",
+          "ends with a kettle whistle shriek"
+        ],
+        "negative_local_styles": [
+          "fade out"
+        ],
+        "duration_ms": 3500,
+        "lines": [
+          "It's the Kattles Show!"
+        ]
+      }
+    ]
+  }
+}

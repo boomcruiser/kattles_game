@@ -14,6 +14,7 @@ const TALLY3_TOP := Vector2(1464, 828)
 const TALLY3_END := Vector2(1466, 874)
 const WIDE := Vector2(1440, 1080)   ## cell wide shot (zoom 1)
 const SCROLL_K := 90.0 / 480.0      ## decree_scroll.png -> 90 world px tall
+const THEME := "res://assets/audio/theme/hardrock1.mp3"  ## see docs/theme-song.md
 const EXT := Vector2(-3000, 0)      ## jail_exterior.png top-left (1536 px -> 960 world px)
 
 var _tally3: Line2D
@@ -178,8 +179,8 @@ func run(d: Director) -> void:
 	d.caption("")
 	d.freeze()
 	await d.wait(1.6)
-	d.hold_card("♪   THEME SONG   ♪")
-	await d.wait(3.0)
+	d.hold_card("THE KATTLES SHOW")
+	await d.music(THEME)
 
 func _wiggle(n: Node2D) -> void:
 	var tw := n.create_tween().set_loops(3)
