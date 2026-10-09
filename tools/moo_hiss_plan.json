@@ -1,0 +1,42 @@
+{
+  "composition_plan": {
+    "positive_global_styles": [
+      "a cappella",
+      "TV show theme song hook",
+      "pop-punk group vocals",
+      "sung \"Moo moo\" on two strong beats",
+      "then whispered rhythmic \"hiss hiss\"",
+      "catchy",
+      "dry studio vocal"
+    ],
+    "negative_global_styles": [
+      "instruments",
+      "drums",
+      "guitar",
+      "bass",
+      "piano",
+      "synth",
+      "background music",
+      "long intro",
+      "spoken word"
+    ],
+    "sections": [
+      {
+        "section_name": "hook",
+        "positive_local_styles": [
+          "a cappella",
+          "short punchy vocal hook",
+          "tight rhythm"
+        ],
+        "negative_local_styles": [
+          "instruments"
+        ],
+        "duration_ms": 4000,
+        "lines": [
+          "Moo moo!",
+          "(hiss hiss)"
+        ]
+      }
+    ]
+  }
+}
