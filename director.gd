@@ -26,7 +26,10 @@ var _puff: Texture2D
 var _bubble_layer: Control
 
 func _ready() -> void:
-	Engine.time_scale = speed
+	for arg in OS.get_cmdline_user_args():             # godot ... -- --from=<section>
+		if arg.begins_with("--from="):
+			_skip_to = arg.trim_prefix("--from=")
+	Engine.time_scale = FAST_FORWARD if _skip_to else speed
 	_build_ui()
 	var ep = load(episode).new()
 	await ep.run(self)
@@ -160,8 +163,7 @@ func freeze() -> void:
 	for a in actors.values():
 		(a as Node).process_mode = Node.PROCESS_MODE_DISABLED
 	_shake = 0.0
-	_flash.color.a = 0.9
-	create_tween().tween_property(_flash, "color:a", 0.0, 0.35)
+	flash()
 
 # ---------------------------------------------------------------- camera / timing
 
@@ -213,21 +215,51 @@ func fade_in(secs: float = 0.4) -> void:
 	tw.tween_property(_card, "modulate:a", 0.0, secs)
 	await tw.finished
 
-## Play a music track to the end (awaitable). Audio runs in real time, unaffected by
-## `speed`.
-func music(path: String, volume_db: float = 0.0) -> void:
+## Start a music track and return its player (await `.finished` to wait for the end).
+## Audio runs in real time, unaffected by `speed`.
+func play_music(path: String, volume_db: float = 0.0) -> AudioStreamPlayer:
 	var p := AudioStreamPlayer.new()
+	if _skip_to:
+		volume_db = -80.0                                # fast-forwarding: keep it quiet
 	p.stream = load(path)
 	p.volume_db = volume_db
 	add_child(p)
 	p.play()
-	await p.finished
-	p.queue_free()
+	p.finished.connect(p.queue_free)
+	return p
+
+## Play a music track to the end (awaitable).
+func music(path: String, volume_db: float = 0.0) -> void:
+	await play_music(path, volume_db).finished
+
+## Change pacing mid-episode (e.g. 1.0 while visuals sync to music).
+func set_speed(s: float) -> void:
+	speed = s
+	if not _skip_to:
+		Engine.time_scale = s
+
+## Section marker. With `-- --from=<name>` everything before the matching mark plays
+## at FAST_FORWARD (silent: music is skipped), so you can iterate on one section.
+func mark(section: String) -> void:
+	if _skip_to and section == _skip_to:
+		_skip_to = ""
+		Engine.time_scale = speed
+
+const FAST_FORWARD := 30.0
+var _skip_to: String = ""
+
+## White flash (cuts, hits).
+func flash(alpha: float = 0.9) -> void:
+	_flash.color.a = alpha
+	create_tween().tween_property(_flash, "color:a", 0.0, 0.35)
 
 ## Show a card and leave it up (end of a cold open).
 func hold_card(text: String) -> void:
 	_card_label.text = text
 	_card.modulate.a = 1.0
+
+func hide_card() -> void:
+	_card.modulate.a = 0.0
 
 ## Stage-direction caption at the bottom ("" clears) — stands in for missing animation.
 func caption(text: String) -> void:
