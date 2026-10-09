@@ -7,6 +7,8 @@ extends Node2D
 ## --write-movie the game quits as soon as the episode ends.
 
 @export_file("*.gd") var episode: String = "res://episodes/ep1_cold_open.gd"
+## Global pacing: scales every walk, tween, wait and particle (Engine.time_scale).
+@export var speed: float = 1.25
 
 var actors: Dictionary = {}          ## id -> Actor
 @onready var world: Node2D = $World
@@ -24,6 +26,7 @@ var _puff: Texture2D
 var _bubble_layer: Control
 
 func _ready() -> void:
+	Engine.time_scale = speed
 	_build_ui()
 	var ep = load(episode).new()
 	await ep.run(self)
@@ -120,12 +123,17 @@ func pop(id: String, big: float = 1.0) -> void:
 ## Steam puffs from the actor's lid/head (tint for smoke / rust dust).
 func steam(id: String, amount: int = 10, big: float = 1.0, tint: Color = Color.WHITE) -> void:
 	var a: Actor = actors[id]
+	puff(a.head_pos() + Vector2(0, 0.12 * a.height), amount, big, tint, a.z_index + 1)
+
+## Steam/smoke puffs at a world position. `loop` keeps emitting (chimneys, spouts) and
+## returns the emitter so the caller can stop it.
+func puff(pos: Vector2, amount: int = 10, big: float = 1.0, tint: Color = Color.WHITE, z: int = 1, loop: bool = false) -> CPUParticles2D:
 	var p := CPUParticles2D.new()
 	p.texture = _puff_tex()
-	p.one_shot = true
+	p.one_shot = not loop
 	p.amount = amount
-	p.lifetime = 1.6
-	p.explosiveness = 0.85
+	p.lifetime = 1.6 if not loop else 3.0
+	p.explosiveness = 0.85 if not loop else 0.0
 	p.direction = Vector2(0, -1)
 	p.spread = 30.0 + 25.0 * big
 	p.initial_velocity_min = 50.0 * big
@@ -139,11 +147,13 @@ func steam(id: String, amount: int = 10, big: float = 1.0, tint: Color = Color.W
 	g.set_color(0, Color(tint, 0.85))
 	g.set_color(1, Color(tint, 0.0))
 	p.color_ramp = g
-	p.position = a.head_pos() + Vector2(0, 0.12 * a.height)
-	p.z_index = a.z_index + 1
+	p.position = pos
+	p.z_index = z
 	world.add_child(p)
 	p.emitting = true
-	get_tree().create_timer(3.0).timeout.connect(p.queue_free)
+	if not loop:
+		get_tree().create_timer(3.0).timeout.connect(p.queue_free)
+	return p
 
 ## Stop every actor mid-pose (freeze-frame), with a white flash.
 func freeze() -> void:
@@ -189,6 +199,18 @@ func card(text: String, secs: float = 2.0) -> void:
 	await wait(secs)
 	tw = create_tween()
 	tw.tween_property(_card, "modulate:a", 0.0, 0.3)
+	await tw.finished
+
+## Dip to black and back: cut the camera/set between the two (awaitable).
+func fade_out(secs: float = 0.4) -> void:
+	_card_label.text = ""
+	var tw := create_tween()
+	tw.tween_property(_card, "modulate:a", 1.0, secs)
+	await tw.finished
+
+func fade_in(secs: float = 0.4) -> void:
+	var tw := create_tween()
+	tw.tween_property(_card, "modulate:a", 0.0, secs)
 	await tw.finished
 
 ## Show a card and leave it up (end of a cold open).

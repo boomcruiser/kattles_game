@@ -13,6 +13,8 @@ const SCRATCH := Color(0.78, 0.72, 0.6, 0.85)  ## tally marks scratched into sto
 const TALLY3_TOP := Vector2(1464, 828)
 const TALLY3_END := Vector2(1466, 874)
 const WIDE := Vector2(1440, 1080)   ## cell wide shot (zoom 1)
+const SCROLL_K := 90.0 / 480.0      ## decree_scroll.png -> 90 world px tall
+const EXT := Vector2(-3000, 0)      ## jail_exterior.png top-left (1536 px -> 960 world px)
 
 var _tally3: Line2D
 var _teabag: Node2D
@@ -26,9 +28,21 @@ func run(d: Director) -> void:
 	vapour.modulate = NIGHT
 
 	# ---- 0:00 establishing ------------------------------------------------
+	# exterior: slow push-in on the glowing barred window
+	d.cam_to(EXT + Vector2(480, 320), 1.0, 0.0)
+	var spout := d.puff(EXT + Vector2(196, 152), 6, 0.35, Color(0.7, 0.72, 0.8), -9, true)
+	d.cam_to(EXT + Vector2(330, 360), 1.7, 7.0)
+	await d.wait(1.5)
+	d.sfx("drip…", EXT + Vector2(225, 500), 18)
+	await d.wait(2.5)
+	d.sfx("drip…", EXT + Vector2(225, 500), 18)
+	await d.wait(3.0)
+	await d.fade_out(0.6)                                 # dip to black, cut inside
+	spout.queue_free()
 	d.cam_to(Vector2(330, 1110), 2.2, 0.0)
-	await d.card("EXT. KATTLES JAIL — NIGHT\n\n(exterior shot TBD)", 2.6)
+	await d.wait(0.3)
 	d.sfx("drip…", Vector2(250, 1010))
+	await d.fade_in(0.6)
 	await d.cam_to(Vector2(430, 1115), 2.2, 2.4)
 	await d.cam_to(Vector2(585, 1105), 2.8, 1.8)
 	await d.wait(3.0)                                   # hold on the headline
@@ -38,10 +52,13 @@ func run(d: Director) -> void:
 	await d.wait(1.0)
 	d.steam("rusty", 5, 0.5)
 	d.sfx("haaah…", Vector2(1200, 760), 18)
-	await d.wait(1.5)
-	d.sfx("drip…", Vector2(1720, 1050))
-	await d.wait(1.8)
+	await d.wait(1.2)
 	d.caption("")
+	for i in 3:                                          # let the drip get to him
+		d.sfx("drip…", Vector2(1720, 1050))
+		await d.wait(1.4)
+	await d.say("rusty", "Is anyone going to fix that damn thing?!", {"hold": 1.2})
+	await d.wait(0.4)
 
 	# ---- 0:20 hating his life ---------------------------------------------
 	var tw := rusty.create_tween()
@@ -58,7 +75,7 @@ func run(d: Director) -> void:
 	await tw3.finished
 	await d.wait(0.5)
 	await d.cam_to(Vector2(1500, 960), 1.4, 1.6)          # pull back
-	await d.say("rusty", "Three days already?", {"hold": 0.5})
+	await d.say("rusty", "Three days?", {"hold": 0.6})
 	await d.say("rusty", "That's a lifetime in Kattle years.")
 
 	d.sfx("thunk", Vector2(1690, 1240), 20)
@@ -69,7 +86,7 @@ func run(d: Director) -> void:
 	d.face("rusty", 1)
 	await d.cam_to(Vector2(1660, 1080), 1.6, 0.8)
 	d.caption("")
-	await d.cam_to(Vector2(1720, 1155), 4.5, 0.6)          # read the tag
+	await d.cam_to(Vector2(1702, 1168), 4.0, 0.6)          # read the tag
 	await d.wait(1.4)
 	await d.cam_to(Vector2(1640, 1060), 1.8, 0.5)
 	await d.say("rusty", "Decaf?!", {"hold": 0.5})
@@ -136,9 +153,11 @@ func run(d: Director) -> void:
 	d.caption("[whistling innocently]")
 	await d.say("rusty", "♪ fweet fwee-fweet ♪")
 	d.caption("[unrolls a royal scroll]")
-	var scroll := d.rect(Rect2(1065, 1150, 64, 0), Color("ead9b0"), 11)
+	var scroll := d.sprite("res://assets/props/decree_scroll.png", Vector2(1068, 1140), 0.0, 11)
+	scroll.modulate = NIGHT
+	scroll.scale = Vector2(SCROLL_K, 0.0)                 # unrolls downward from the top roller
 	tw = scroll.create_tween()
-	tw.tween_property(scroll, "size:y", 84.0, 0.6)
+	tw.tween_property(scroll, "scale:y", SCROLL_K, 0.5)
 	await tw.finished
 	d.caption("")
 	await d.say("vapour", "By royal decree…", {"keep": true})
@@ -169,6 +188,9 @@ func _wiggle(n: Node2D) -> void:
 	tw.chain().tween_property(n, "rotation", 0.0, 0.1)
 
 func _build_set(d: Director) -> void:
+	# exterior (its own patch of world, far left)
+	d.sprite("res://assets/sets/jail_exterior.png", EXT, 0.625, -10)
+
 	# Vapour's office (left of the cell)
 	d.rect(Rect2(-600, 0, 1560, 1440), Color("1c211e"), -20)
 	for y in range(840, 1250, 58):
@@ -204,15 +226,7 @@ func _build_set(d: Director) -> void:
 
 	# teabag, waiting below the slot
 	_teabag = d.group(Vector2(1705, 1440), 1.0, 0.0, 6)
-	d.rect(Rect2(-9, -22, 18, 22), Color("b89a6a"), 0, _teabag)
-	d.line(PackedVector2Array([Vector2(0, -22), Vector2(6, -40)]), Color("ddd"), 1.5, 0, _teabag)
-	d.rect(Rect2(2, -53, 40, 15), Color("e0ddd0"), 0, _teabag)
-	var tag := Node2D.new()                              # text at 4x, scaled down: crisp in close-up
-	tag.position = Vector2(5, -52)
-	tag.scale = Vector2(0.25, 0.25)
-	tag.z_index = 1
-	_teabag.add_child(tag)
-	d.text("DECAF", Vector2.ZERO, 40, Color("7a2a1a"), 0, tag)
+	d.sprite("res://assets/props/teabag_decaf.png", Vector2(-24, -60), 60.0 / 360.0, 0, false, _teabag)
 
 	# spider + web in the top-right corner
 	for a in [0.55, 1.0, 1.45, 1.9]:

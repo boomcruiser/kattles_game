@@ -18,17 +18,19 @@ themselves, Kate's pigeons' stardust saved the day, and Dukie caught Rusty. Rust
 ## Cold open (0:00–2:00)
 
 ### 0:00–0:20 · Establishing
-- Exterior: jail at night. Dripping pipe, lone lamp.
+- Exterior: Kattles Jail at night (`assets/sets/jail_exterior.png`) — half Steamtown stone block
+  with a teapot dome, half Cattle Valley barn with a bull head over the door. Slow push-in on
+  the glowing barred window; spout steams, pipe drips.
 - Interior: Inspector Vapour's empty desk outside the cells. Slow pan across it: teacup,
   magnifying glass, and a newspaper — **"KATTLES DAY SAVED! RUSTY CAUGHT BY ROYAL HOUND"**
   with a photo of Rusty knocked over on his side, Dukie standing on top. (Visual only — establishes backstory for new viewers.)
 - Pan continues into the cell: Rusty on the bunk staring at the ceiling, sighing a puff of steam.
-- No dialogue. Drip… drip…
+- Hold on him. Drip… drip… drip… Rusty: *"Is anyone going to fix that damn thing?!"*
 
 ### 0:20–0:50 · Hating his life
 - Close on the wall: two tally marks already. SCREEEECH — he scratches a third.
-  Pull back. *"Three days already? That's a lifetime in Kattle years."*
-- Breakfast through the slot: a single cold teabag. Close on the tag: **DECAF**.
+  Pull back. *"Three days?" … "That's a lifetime in Kattle years."*
+- Breakfast through the slot: a single sad teabag (`assets/props/teabag_decaf.png`). Close on the tag: **DECAF**.
   *"Decaf?!" … "…Yuck."*
 - Brews it himself: drops the teabag in his lid, strains. Sounds only — plop, glug glug,
   CLANK, wheeeeze, a puff of rust dust. Beat. *"…That can't be good."*
@@ -43,7 +45,7 @@ themselves, Kate's pigeons' stardust saved the day, and Dukie caught Rusty. Rust
 - Keys jangle. Inspector Vapour enters, cheerful, holding a scroll.
 - Vapour: *"Bonjour, Rusty! I bring news from ze Princess 'erself."*
 - Rusty whistles innocently.
-- Vapour: *"By royal decree… you are sentenced to…"* (dramatic pause) *"…community service!"*
+- Plain, small scroll (`assets/props/decree_scroll.png`), no close-up. Vapour: *"By royal decree… you are sentenced to…"* (dramatic pause) *"…community service!"*
 
 ### 1:45–2:00 · Shock + smash cut
 - Zoom on Rusty's face. Lid pops up with a steam burst.
@@ -57,7 +59,7 @@ themselves, Kate's pigeons' stardust saved the day, and Dukie caught Rusty. Rust
 Record: `godot --path . res://Episode.tscn --write-movie <dir>/ep1.avi --fixed-fps 30`.
 
 ## Production needs (cold open)
-- Backgrounds: jail exterior, jail interior w/ Vapour's desk (`bg-jail.png` exists in kattles_web).
+- Backgrounds: jail exterior (done), jail interior w/ Vapour's desk (`bg-jail.png` exists in kattles_web).
 - Props: newspaper (headline + Dukie-on-fallen-Rusty photo), teacup, magnifying glass,
   teabag, spider, tally marks, scroll, keys.
 - Animation: camera pan/push/zoom, speech bubbles, talk-bob, idle, Rusty lid-pop + steam
